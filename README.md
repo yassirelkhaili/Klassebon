@@ -126,7 +126,7 @@ klassebon/
 
 ## Tech stack
 
-- **Frontend:** Vite, React, TypeScript, Tailwind (planned)
+- **Frontend:** Vite, React, TypeScript, Tailwind
 - **Backend:** Express.js, tRPC, Prisma ORM
 - **Auth:** Better Auth (session-based, PostgreSQL)
 - **Database:** PostgreSQL
