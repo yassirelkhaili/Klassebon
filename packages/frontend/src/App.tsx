@@ -13,7 +13,7 @@ export default function App() {
 
   return (
     <main style={{ fontFamily: "system-ui", padding: "2rem" }}>
-      <h1 className="text-blue-500">Klassebon</h1>
+      <h1 className="text-red-500">Klassebon</h1>
       <p>Vite frontend + workspace shared types.</p>
       {health && (
         <pre style={{ background: "#f4f4f4", padding: "1rem" }}>
