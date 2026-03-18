@@ -1,0 +1,25 @@
+# Local PostgreSQL for development (TA2.2)
+# Usage: docker compose up -d
+# Then set DATABASE_URL in packages/backend/.env — see docker/README.md
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: klassebon-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: klassebon
+      POSTGRES_PASSWORD: klassebon
+      POSTGRES_DB: klassebon
+    ports:
+      - "5432:5432"
+    volumes:
+      - klassebon_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U klassebon -d klassebon"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  klassebon_pgdata:

@@ -1,0 +1,1253 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Projektantrag — KlasseBon</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "DM Sans", sans-serif;
+        background-color: #e8e8e8;
+        color: #1a1a1a;
+        line-height: 1.7;
+        padding: 30px;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        box-shadow: 0 4px 40px rgba(0, 0, 0, 0.12);
+      }
+
+      /* --- HEADER --- */
+      .header {
+        background-color: #1a1a1a;
+        color: #fff;
+        padding: 50px 50px 45px;
+      }
+      .header-label {
+        font-family: "Space Mono", monospace;
+        font-size: 0.75em;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        color: #888;
+        margin-bottom: 12px;
+      }
+      .header h1 {
+        font-size: 2.4em;
+        font-weight: 700;
+        margin-bottom: 6px;
+        letter-spacing: -0.5px;
+      }
+      .header p {
+        font-size: 1.05em;
+        color: #aaa;
+      }
+      .header-meta {
+        margin-top: 25px;
+        display: flex;
+        gap: 30px;
+        flex-wrap: wrap;
+      }
+      .header-meta-item {
+        font-family: "Space Mono", monospace;
+        font-size: 0.78em;
+        color: #666;
+      }
+      .header-meta-item span {
+        color: #ccc;
+        display: block;
+        font-size: 1.1em;
+        margin-top: 2px;
+      }
+
+      /* --- CONTENT --- */
+      .content {
+        padding: 45px 50px 50px;
+      }
+      .section {
+        margin-bottom: 48px;
+      }
+
+      .section-title {
+        font-family: "Space Mono", monospace;
+        background-color: #1a1a1a;
+        color: #fff;
+        padding: 14px 22px;
+        font-size: 1.1em;
+        font-weight: 700;
+        margin-bottom: 22px;
+        letter-spacing: 0.5px;
+      }
+      .subsection-title {
+        font-family: "Space Mono", monospace;
+        background-color: #f0f0f0;
+        color: #1a1a1a;
+        padding: 11px 22px;
+        font-size: 0.92em;
+        font-weight: 700;
+        margin-bottom: 16px;
+        margin-top: 28px;
+        border-left: 3px solid #1a1a1a;
+      }
+
+      .prose {
+        padding: 0 4px;
+        margin-bottom: 18px;
+        font-size: 0.93em;
+      }
+
+      /* --- TABLES --- */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 22px;
+        font-size: 0.93em;
+      }
+      th {
+        background-color: #2a2a2a;
+        color: #fff;
+        padding: 12px 18px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.9em;
+        letter-spacing: 0.3px;
+        border: 1px solid #3a3a3a;
+      }
+      td {
+        padding: 12px 18px;
+        border: 1px solid #ddd;
+        vertical-align: top;
+      }
+      tr:nth-child(even) {
+        background-color: #fafafa;
+      }
+      .highlight {
+        background-color: #f0f0f0;
+        font-weight: 600;
+        color: #1a1a1a;
+      }
+      .total-row td {
+        background-color: #1a1a1a !important;
+        color: #fff;
+        font-weight: 700;
+      }
+
+      /* --- COMPARISON TABLE --- */
+      .compare-table th {
+        font-size: 0.82em;
+        padding: 10px 14px;
+      }
+      .compare-table td {
+        font-size: 0.85em;
+        padding: 10px 14px;
+      }
+      .compare-table .product-highlight {
+        background-color: #f0f0f0;
+        border-left: 3px solid #1a1a1a;
+      }
+
+      /* --- STRUCTURE DIAGRAM --- */
+      .structure-diagram {
+        margin: 20px 0 25px;
+        padding: 30px;
+        background: #fafafa;
+        border: 1px solid #ddd;
+      }
+      .struct-root {
+        text-align: center;
+        margin-bottom: 25px;
+      }
+      .struct-root span {
+        display: inline-block;
+        background: #1a1a1a;
+        color: #fff;
+        padding: 10px 28px;
+        font-family: "Space Mono", monospace;
+        font-size: 0.85em;
+        font-weight: 700;
+      }
+      .struct-branches {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .struct-branch {
+        flex: 1;
+        min-width: 140px;
+        max-width: 180px;
+      }
+      .struct-branch-title {
+        background: #3a3a3a;
+        color: #fff;
+        padding: 7px 12px;
+        font-family: "Space Mono", monospace;
+        font-size: 0.72em;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 5px;
+      }
+      .struct-branch-item {
+        background: #f0f0f0;
+        padding: 5px 12px;
+        font-size: 0.78em;
+        border: 1px solid #ddd;
+        margin-bottom: 3px;
+        text-align: center;
+      }
+
+      /* --- LISTS inside tables --- */
+      td ul {
+        margin: 0;
+        padding-left: 18px;
+      }
+      td ul li {
+        margin-bottom: 4px;
+      }
+
+      /* --- FOOTER --- */
+      .footer {
+        background-color: #1a1a1a;
+        color: #666;
+        padding: 22px 50px;
+        font-family: "Space Mono", monospace;
+        font-size: 0.72em;
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .footer span {
+        color: #999;
+      }
+
+      @media print {
+        body {
+          padding: 0;
+          background: #fff;
+        }
+        .container {
+          box-shadow: none;
+        }
+        .section {
+          page-break-inside: avoid;
+        }
+      }
+      @media (max-width: 700px) {
+        .content,
+        .header {
+          padding: 25px;
+        }
+        .header h1 {
+          font-size: 1.6em;
+        }
+        .header-meta {
+          flex-direction: column;
+          gap: 12px;
+        }
+        .struct-branches {
+          flex-direction: column;
+          align-items: center;
+        }
+        .footer {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- ====== HEADER ====== -->
+      <div class="header">
+        <div class="header-label">
+          Zwischenprojekt · Fachinformatiker Anwendungsentwicklung
+        </div>
+        <h1>PROJEKTANTRAG</h1>
+        <p>KlasseBon — Webbasierte Ausgabenverwaltung</p>
+        <div class="header-meta">
+          <div class="header-meta-item">Zeitraum<span>14 Wochen</span></div>
+          <div class="header-meta-item">Team<span>4 Personen</span></div>
+          <div class="header-meta-item">
+            Gesamtaufwand<span>76 Stunden</span>
+          </div>
+          <div class="header-meta-item">
+            Tech-Stack<span
+              >React · Node · tRPC · Tesseract · Ollama · PostgreSQL</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <!-- ==================== SECTION 1 ==================== -->
+        <div class="section">
+          <div class="section-title">1 — Projektantrag</div>
+
+          <div class="subsection-title">1.1 Kurzform der Aufgabenstellung</div>
+          <table>
+            <tr>
+              <td class="highlight" style="width: 28%">Projektname</td>
+              <td>KlasseBon</td>
+            </tr>
+            <tr>
+              <td class="highlight">Aufgabe</td>
+              <td>
+                Entwicklung einer webbasierten Anwendung, die es Privatpersonen
+                ermöglicht, ihre Abonnements und Quittungen digital zu
+                dokumentieren, um eine klare Übersicht über ihre monatlichen
+                Ausgaben zu erhalten. Quittungen können per OCR (Tesseract)
+                automatisch eingelesen werden. Zusätzlich analysiert das System
+                die erfassten Kosten und generiert personalisierte Spartipps
+                über ein lokales KI-Modell (Ollama).
+              </td>
+            </tr>
+            <tr>
+              <td class="highlight">Kernfunktionen</td>
+              <td>
+                <ul>
+                  <li>Benutzerregistrierung und Login</li>
+                  <li>Erfassung von Abonnements und einzelnen Ausgaben</li>
+                  <li>Automatische Quittungserkennung per OCR (Tesseract)</li>
+                  <li>Übersicht der monatlichen Gesamtkosten</li>
+                  <li>Kategorisierung der Ausgaben</li>
+                  <li>
+                    Generierung von Spartipps über ein lokales LLM (Ollama)
+                  </li>
+                </ul>
+              </td>
+            </tr>
+          </table>
+
+          <div class="subsection-title">1.2 Ist-Analyse</div>
+          <p class="prose">
+            Aktuell verwalten viele Privatpersonen ihre Ausgaben unsystematisch.
+            Quittungen werden häufig gesammelt, verloren oder nicht ausgewertet.
+            Abonnements laufen im Hintergrund weiter, ohne dass ein klarer
+            Überblick über die Gesamtkosten besteht.
+          </p>
+
+          <table>
+            <tr>
+              <th style="width: 28%">Problem</th>
+              <th>Beschreibung</th>
+            </tr>
+            <tr>
+              <td class="highlight">Fehlende Transparenz</td>
+              <td>Kein Überblick über monatliche Ausgaben</td>
+            </tr>
+            <tr>
+              <td class="highlight">Unterschätzte Kosten</td>
+              <td>
+                Kleine, aber regelmäßige Kosten werden unterschätzt (z.&nbsp;B.
+                Streaming-Abos)
+              </td>
+            </tr>
+            <tr>
+              <td class="highlight">Keine Auswertung</td>
+              <td>Keine strukturierte Auswertung der Ausgaben</td>
+            </tr>
+            <tr>
+              <td class="highlight">Kein Sparpotenzial</td>
+              <td>Kaum konkrete Hinweise auf Einsparpotenziale</td>
+            </tr>
+          </table>
+
+          <div class="subsection-title">Marktvergleich</div>
+          <table class="compare-table">
+            <tr>
+              <th>Produkt</th>
+              <th>PSD2 / Multi-Banking</th>
+              <th>Auto-Kategorisierung</th>
+              <th>Analysefunktionen</th>
+              <th>Besonderheiten</th>
+            </tr>
+            <tr>
+              <td class="highlight">Finanzguru</td>
+              <td>Ja, Kontenverknüpfung, Multibanking</td>
+              <td>Ja, KI-gestützt</td>
+              <td>Detaillierte Analysen, Vertragsüberblick</td>
+              <td>Vertragsoptimierung, Sparvorschläge</td>
+            </tr>
+            <tr>
+              <td class="highlight">MoneyControl</td>
+              <td>Teilweise Kontenverwaltung</td>
+              <td>Teilweise, für wiederkehrende Buchungen</td>
+              <td>Budget, Vorschau, grafische Auswertungen</td>
+              <td>Klassisches Haushaltsbuch, viele Auswertungen</td>
+            </tr>
+            <tr>
+              <td class="highlight">Outbank</td>
+              <td>Ja, Multi-Banking</td>
+              <td>Ja, nach Kategorien/Tags</td>
+              <td>Auswertungen, Budgets</td>
+              <td>Offline-Konten, Haushaltsbuch-Funktion</td>
+            </tr>
+            <tr class="product-highlight">
+              <td class="highlight" style="border-left: 3px solid #1a1a1a">
+                KlasseBon
+              </td>
+              <td>Nein, bewusst keine Bankanbindung</td>
+              <td>Einfache Kategorisierung + OCR-Erkennung (Tesseract)</td>
+              <td>
+                Übersicht monatlicher Gesamtkosten, Spartipps via lokalem LLM
+                (Ollama)
+              </td>
+              <td>
+                Schlanke Web-App, OCR-Quittungserkennung, lokale KI-Spartipps,
+                Docker-basiert, Fokus auf Transparenz &amp; Datenschutz
+              </td>
+            </tr>
+          </table>
+          <p class="prose">
+            Für viele Nutzer ist eine schlanke, webbasierte Anwendung sinnvoll,
+            bei der Ausgaben manuell erfasst und bewusst reflektiert werden.
+            Genau hier setzt „KlasseBon" an: Fokus auf Übersichtlichkeit,
+            einfache Bedienung und gezielte Spartipps.
+          </p>
+        </div>
+
+        <!-- ==================== SECTION 2 ==================== -->
+        <div class="section">
+          <div class="section-title">2 — Zielsetzung / Soll-Konzept</div>
+
+          <div class="subsection-title">
+            2.1 Was soll am Ende des Projekts erreicht sein?
+          </div>
+          <table>
+            <tr>
+              <th style="width: 5%">Nr.</th>
+              <th>Zielsetzung</th>
+            </tr>
+            <tr>
+              <td>Z1</td>
+              <td>
+                Strukturierte Erfassung von Ausgaben und Abonnements durch den
+                Benutzer
+              </td>
+            </tr>
+            <tr>
+              <td>Z2</td>
+              <td>Übersichtliche Darstellung der monatlichen Gesamtkosten</td>
+            </tr>
+            <tr>
+              <td>Z3</td>
+              <td>
+                Kategorisierung der Ausgaben (z.&nbsp;B. Streaming,
+                Lebensmittel, Versicherung)
+              </td>
+            </tr>
+            <tr>
+              <td>Z4</td>
+              <td>
+                Generierung von Spartipps über ein lokales LLM (Ollama) auf
+                Basis der erfassten Ausgaben
+              </td>
+            </tr>
+            <tr>
+              <td>Z5</td>
+              <td>
+                Automatische Quittungserkennung per OCR (Tesseract) zur
+                vereinfachten Ausgabenerfassung
+              </td>
+            </tr>
+            <tr>
+              <td>Z6</td>
+              <td>Moderne, intuitive und responsive Benutzeroberfläche</td>
+            </tr>
+            <tr>
+              <td>Z7</td>
+              <td>
+                Sichere Datenspeicherung (scrypt Passwort-Hashing via
+                Better-Auth, Session-basierte Authentifizierung)
+              </td>
+            </tr>
+          </table>
+
+          <div class="subsection-title">
+            2.2 Welche Anforderungen müssen erfüllt sein?
+          </div>
+
+          <table>
+            <tr>
+              <th style="width: 18%">Kategorie</th>
+              <th>Anforderung</th>
+            </tr>
+            <tr>
+              <td class="highlight">Funktional (Kern)</td>
+              <td>
+                <ul>
+                  <li>
+                    Benutzerregistrierung, Login und Passwort-Reset über
+                    Better-Auth (Session-basierte Authentifizierung)
+                  </li>
+                  <li>
+                    Strukturierte Erfassung von Ausgaben/Abonnements (Titel,
+                    Kategorie, Betrag, Datum, Wiederkehrstatus)
+                  </li>
+                  <li>
+                    Automatische Quittungserkennung per OCR (Tesseract) — Bild
+                    hochladen, Betrag &amp; Kategorie werden extrahiert
+                  </li>
+                  <li>
+                    Dashboard mit monatlicher Gesamtkostenübersicht (Gesamtsumme
+                    + Balkendiagramm pro Kategorie)
+                  </li>
+                  <li>
+                    Vordefinierte Kategorien (Streaming, Lebensmittel,
+                    Versicherung, Transport, Sonstiges)
+                  </li>
+                  <li>
+                    Spartipp-Generierung über lokales LLM (Ollama) — z.&nbsp;B.
+                    „Ihre Streaming-Ausgaben (45€) überschreiten 30% Ihres
+                    Budgets"
+                  </li>
+                  <li>
+                    Vollständige CRUD-Operationen für Ausgaben und Abonnements
+                  </li>
+                </ul>
+              </td>
+            </tr>
+
+            <tr>
+              <td class="highlight">Fehlerquote</td>
+              <td>
+                &lt; 1% aller Requests durch strukturiertes Error Handling und
+                Logging (Winston)
+              </td>
+            </tr>
+            <tr>
+              <td class="highlight">Testabdeckung</td>
+              <td>
+                ≥ 80% Unit Test Coverage (nachgewiesen durch Jest/Vitest
+                Coverage Report)
+              </td>
+            </tr>
+            <tr>
+              <td class="highlight">Performance</td>
+              <td>
+                API-Response &lt; 500ms (95th Percentile), Frontend-Ladezeit
+                &lt; 2s (Lighthouse Score ≥ 90)
+              </td>
+            </tr>
+            <tr>
+              <td class="highlight">Sicherheit</td>
+              <td>
+                <ul>
+                  <li>
+                    Passwort-Hashing mit scrypt (Better-Auth Default,
+                    memory-hard)
+                  </li>
+                  <li>
+                    Session-basierte Authentifizierung mit DB-Storage
+                    (Better-Auth)
+                  </li>
+                  <li>CSRF-Schutz (Better-Auth eingebaut)</li>
+
+                  <li>
+                    Rate Limiting (Better-Auth eingebaut + max. 100 Requests/Min
+                    pro IP)
+                  </li>
+                  <li>Input Validation mit Zod</li>
+                </ul>
+              </td>
+            </tr>
+            <tr>
+              <td class="highlight">Benutzerfreundlichkeit</td>
+              <td>
+                Responsive Design (Mobile, Tablet, Desktop), jede Kernfunktion
+                in max. 3 Klicks erreichbar
+              </td>
+            </tr>
+            <tr>
+              <td class="highlight">Wartbarkeit</td>
+              <td>Einheitlicher Codestil durch ESLint &amp; Prettier</td>
+            </tr>
+          </table>
+
+          <div class="subsection-title">
+            2.3 Welche Einschränkungen müssen berücksichtigt werden?
+          </div>
+          <table>
+            <tr>
+              <th style="width: 22%">Einschränkung</th>
+              <th>Beschreibung</th>
+            </tr>
+            <tr>
+              <td class="highlight">Bankanbindung</td>
+              <td>Keine Integration externer Bank-Schnittstellen (PSD2)</td>
+            </tr>
+            <tr>
+              <td class="highlight">Datenschutz</td>
+              <td>
+                Datenschutzanforderungen gemäß DSGVO müssen eingehalten werden
+              </td>
+            </tr>
+            <tr>
+              <td class="highlight">OCR-Genauigkeit</td>
+              <td>
+                Tesseract-Erkennung kann je nach Belegqualität ungenau sein —
+                bei Fehlern ist eine manuelle Eingabe als Fallback vorgesehen.
+              </td>
+            </tr>
+            <tr>
+              <td class="highlight">Ollama Hardware</td>
+              <td>
+                Lokales LLM erfordert mind. 8 GB RAM (3B Modell), empfohlen 16
+                GB + GPU. Ohne ausreichende Hardware ist die
+                Spartipp-Generierung eingeschränkt.
+              </td>
+            </tr>
+            <tr>
+              <td class="highlight">Keine externen API-Aufrufe</td>
+              <td>
+                Alle Dienste (Tesseract, Ollama) laufen lokal — keine Daten
+                verlassen den Rechner des Nutzers.
+              </td>
+            </tr>
+            <tr>
+              <td class="highlight">Open Source</td>
+              <td>
+                Alle eingesetzten Technologien sind vollständig Open Source (MIT
+                / Apache 2.0).
+              </td>
+            </tr>
+            <tr>
+              <td class="highlight">Zeit</td>
+              <td>Projektzeitraum begrenzt auf 14 Wochen</td>
+            </tr>
+            <tr>
+              <td class="highlight">Team</td>
+              <td>Begrenzte personelle Ressourcen (4 Mitglieder)</td>
+            </tr>
+          </table>
+
+          <div class="subsection-title">2.4 Rechtliche Maßnahmen (DSGVO)</div>
+          <table>
+            <tr>
+              <th style="width: 28%">Maßnahme</th>
+              <th>Beschreibung</th>
+            </tr>
+            <tr>
+              <td class="highlight">Einwilligung (Art. 6 Abs. 1 lit. a)</td>
+              <td>Klarer Zustimmungsdialog beim ersten Start der App</td>
+            </tr>
+            <tr>
+              <td class="highlight">
+                Vertragserfüllung (Art. 6 Abs. 1 lit. b)
+              </td>
+              <td>
+                Verarbeitung personenbezogener Daten zur Vertragserfüllung
+              </td>
+            </tr>
+            <tr>
+              <td class="highlight">Datenschutzerklärung</td>
+              <td>
+                Verständliche Erklärung in einfachem Deutsch, was gesammelt wird
+                und warum
+              </td>
+            </tr>
+            <tr>
+              <td class="highlight">Recht auf Löschung (Art. 17)</td>
+              <td>
+                Nutzer können ihr Konto und alle zugehörigen Daten jederzeit
+                löschen (Recht auf Vergessenwerden)
+              </td>
+            </tr>
+            <tr>
+              <td class="highlight">Datensparsamkeit (Art. 5 Abs. 1 lit. c)</td>
+              <td>
+                Es werden nur die für die Funktion unbedingt notwendigen Daten
+                erhoben
+              </td>
+            </tr>
+            <tr>
+              <td class="highlight">Widerrufsmöglichkeit</td>
+              <td>
+                Die Einwilligung kann jederzeit so einfach widerrufen werden,
+                wie sie erteilt wurde
+              </td>
+            </tr>
+            <tr>
+              <td class="highlight">Drittlandübermittlung (Art. 44)</td>
+              <td>
+                Entfällt — Spartipp-Generierung erfolgt lokal über Ollama
+                (Self-Hosted LLM). Es werden keine personenbezogenen Daten an
+                Drittländer übermittelt.
+              </td>
+            </tr>
+          </table>
+
+          <div class="subsection-title">
+            2.5 Technische Sicherheitsmaßnahmen
+          </div>
+          <table>
+            <tr>
+              <th style="width: 28%">Maßnahme</th>
+              <th>Beschreibung</th>
+            </tr>
+            <tr>
+              <td class="highlight">Passwortsicherheit</td>
+              <td>
+                Passwörter werden mit scrypt gehasht (Better-Auth Default,
+                memory-hard Algorithmus) — Klartext-Passwörter werden niemals
+                gespeichert
+              </td>
+            </tr>
+
+            <tr>
+              <td class="highlight">Verschlüsselte Datenbank</td>
+              <td>
+                Finanzdaten in verschlüsselter PostgreSQL-Datenbank gespeichert
+              </td>
+            </tr>
+            <tr>
+              <td class="highlight">Session-Sicherheit</td>
+              <td>
+                Session-basierte Authentifizierung via Better-Auth — Sessions in
+                der Datenbank gespeichert, automatische Verlängerung,
+                serverseitige Invalidierung möglich
+              </td>
+            </tr>
+            <tr>
+              <td class="highlight">Datenschutzkonformes Logging</td>
+              <td>
+                Protokollierung ohne personenbezogene Daten — keine IP-Adressen
+                oder Nutzungsprofile
+              </td>
+            </tr>
+            <tr>
+              <td class="highlight">LLM-Sicherheit</td>
+              <td>
+                Ollama läuft lokal als Self-Hosted-Dienst — keine externen
+                API-Keys, keine Datenübertragung an Dritte. Zugriff nur über
+                internes Netzwerk / Docker-Netzwerk
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- ==================== SECTION 3 ==================== -->
+        <div class="section">
+          <div class="section-title">3 — Projektstrukturplan</div>
+
+          <div class="subsection-title">
+            3.1 Was ist zur Erfüllung der Zielsetzung erforderlich?
+          </div>
+          <table>
+            <tr>
+              <td class="highlight" style="width: 28%">Anforderungsanalyse</td>
+              <td>Zieldefinition, Funktionsumfang, Nutzerbedürfnisse</td>
+            </tr>
+            <tr>
+              <td class="highlight">Projektplanung</td>
+              <td>
+                Jira-Strukturplan (Epics, Stories, Tasks), Klassendiagramm
+                (UML), Use-Case-Diagramm, Figma-Prototyp
+              </td>
+            </tr>
+            <tr>
+              <td class="highlight">Technologiefestlegung</td>
+              <td>
+                React + TypeScript + Tailwind CSS, tRPC + Express.js,
+                Better-Auth, Tesseract (OCR), Ollama (LLM), Prisma ORM,
+                PostgreSQL, Docker + Docker Compose
+              </td>
+            </tr>
+            <tr>
+              <td class="highlight">Datenbankmodell</td>
+              <td>ER-Diagramm, Tabellenstruktur, Relationen</td>
+            </tr>
+            <tr>
+              <td class="highlight">Backend-Entwicklung</td>
+              <td>API-Endpunkte, Authentifizierung, Geschäftslogik</td>
+            </tr>
+            <tr>
+              <td class="highlight">Frontend-Entwicklung</td>
+              <td>UI-Komponenten, Dashboard, Formulare, API-Anbindung</td>
+            </tr>
+            <tr>
+              <td class="highlight">Spartipp-Logik</td>
+              <td>
+                Implementierung der Ollama-LLM-Anbindung für lokale
+                Spartipp-Generierung
+              </td>
+            </tr>
+            <tr>
+              <td class="highlight">Testphase</td>
+              <td>
+                Unit Tests, Integrationstests, Usability, Performance,
+                Sicherheit
+              </td>
+            </tr>
+            <tr>
+              <td class="highlight">Dokumentation</td>
+              <td>Projektdokumentation, API-Dokumentation</td>
+            </tr>
+          </table>
+
+          <div class="subsection-title">3.2 Hauptaufgaben</div>
+          <table>
+            <tr>
+              <th style="width: 8%">Nr.</th>
+              <th>Hauptaufgabe</th>
+              <th style="width: 28%">Verantwortlich</th>
+            </tr>
+            <tr>
+              <td>HA1</td>
+              <td>Projektplanung &amp; Systemdesign</td>
+              <td>Yassir, Andrzej</td>
+            </tr>
+            <tr>
+              <td>HA2</td>
+              <td>Projekt-Setup, Docker Compose &amp; Datenbank</td>
+              <td>Marouane, Yassir</td>
+            </tr>
+            <tr>
+              <td>HA3</td>
+              <td>Authentifizierung &amp; OCR-Modul (Backend)</td>
+              <td>Yassir</td>
+            </tr>
+            <tr>
+              <td>HA4</td>
+              <td>Ausgaben-/Abo-CRUD &amp; Spartipp-Modul (Backend)</td>
+              <td>Andrzej</td>
+            </tr>
+            <tr>
+              <td>HA5</td>
+              <td>
+                Auth-Seiten, OCR-Upload &amp; Ausgabenerfassung (Frontend)
+              </td>
+              <td>Anton</td>
+            </tr>
+            <tr>
+              <td>HA6</td>
+              <td>Dashboard, Auswertung &amp; Spartipp-Seite (Frontend)</td>
+              <td>Marouane</td>
+            </tr>
+            <tr>
+              <td>HA7</td>
+              <td>Testing &amp; Dokumentation</td>
+              <td>Gesamtes Team</td>
+            </tr>
+          </table>
+
+          <div class="subsection-title">3.3 Teilaufgaben</div>
+
+          <table>
+            <tr>
+              <th style="width: 16%">Modul</th>
+              <th style="width: 7%">Nr.</th>
+              <th>Teilaufgabe</th>
+              <th style="width: 14%">Verantwortlich</th>
+              <th style="width: 8%">SP</th>
+            </tr>
+            <!-- Planung (Team) -->
+            <tr>
+              <td class="highlight" rowspan="9">Planung (Team)</td>
+              <td>TA1.1</td>
+              <td>Anforderungsanalyse &amp; Recherche</td>
+              <td>Yassir, Andrej</td>
+              <td>3</td>
+            </tr>
+            <tr>
+              <td>TA1.2</td>
+              <td>Projektantrag erstellen</td>
+              <td>Yassir</td>
+              <td>3</td>
+            </tr>
+            <tr>
+              <td>TA1.3</td>
+              <td>
+                Jira-Projektstrukturplan erstellen (Epics, Stories, Tasks)
+              </td>
+              <td>Yassir, Anton</td>
+              <td>3</td>
+            </tr>
+            <tr>
+              <td>TA1.4</td>
+              <td>Figma-Prototyp &amp; UI-Design erstellen</td>
+              <td>Anton, Marouane</td>
+              <td>5</td>
+            </tr>
+            <tr>
+              <td>TA1.5</td>
+              <td>Klassendiagramm erstellen (UML)</td>
+              <td>Yassir, Anton</td>
+              <td>3</td>
+            </tr>
+            <tr>
+              <td>TA1.6</td>
+              <td>Use-Case-Diagramm erstellen</td>
+              <td>Marouane, Andrzej</td>
+              <td>3</td>
+            </tr>
+            <tr>
+              <td>TA1.7</td>
+              <td>Datenbankmodell entwerfen (ER-Diagramm)</td>
+              <td>Yassir, Andrzej</td>
+              <td>3</td>
+            </tr>
+            <tr>
+              <td>TA1.8</td>
+              <td>Netzplan erstellen</td>
+              <td>Andrzej</td>
+              <td>3</td>
+            </tr>
+            <tr>
+              <td>TA1.9</td>
+              <td>API-Spezifikation erstellen (tRPC-Prozeduren)</td>
+              <td>Gesamtes Team</td>
+              <td>3</td>
+            </tr>
+            <!-- Yassir: Backend Auth + OCR -->
+            <tr>
+              <td class="highlight" rowspan="7">
+                Auth &amp; OCR — Backend (Yassir)
+              </td>
+              <td>TA2.1</td>
+              <td>Node.js &amp; Express mit tRPC einrichten</td>
+              <td>Yassir</td>
+              <td>3</td>
+            </tr>
+            <tr>
+              <td>TA2.2</td>
+              <td>
+                Datenbank mit PostgreSQL erstellen &amp; Prisma ORM
+                konfigurieren
+              </td>
+              <td>Yassir</td>
+              <td>3</td>
+            </tr>
+            <tr>
+              <td>TA2.3</td>
+              <td>
+                Better-Auth einrichten (Prisma-Adapter, Session-basierte
+                Authentifizierung)
+              </td>
+              <td>Yassir</td>
+              <td>5</td>
+            </tr>
+            <tr>
+              <td>TA2.4</td>
+              <td>Geschützte Routen &amp; Session-Middleware für tRPC</td>
+              <td>Yassir</td>
+              <td>3</td>
+            </tr>
+            <tr>
+              <td>TA2.5</td>
+              <td>
+                Tesseract OCR-Integration implementieren (Backend-Endpunkt)
+              </td>
+              <td>Yassir</td>
+              <td>5</td>
+            </tr>
+            <tr>
+              <td>TA2.6</td>
+              <td>Passwort-Reset-Endpunkt implementieren</td>
+              <td>Yassir</td>
+              <td>2</td>
+            </tr>
+            <tr>
+              <td>TA2.7</td>
+              <td>Tests für Auth- &amp; OCR-Modul schreiben</td>
+              <td>Yassir</td>
+              <td>3</td>
+            </tr>
+            <!-- Andrzej: Backend CRUD + Spartipps -->
+            <tr>
+              <td class="highlight" rowspan="7">
+                Ausgaben, Abos &amp; Spartipps — Backend (Andrzej)
+              </td>
+              <td>TA3.1</td>
+              <td>tRPC-Prozeduren für CRUD Ausgaben &amp; Abonnements</td>
+              <td>Andrzej</td>
+              <td>5</td>
+            </tr>
+            <tr>
+              <td>TA3.2</td>
+              <td>Logik zur Berechnung der Monatskosten entwickeln</td>
+              <td>Andrzej</td>
+              <td>3</td>
+            </tr>
+            <tr>
+              <td>TA3.3</td>
+              <td>Kategorisierung &amp; Filterfunktionen (Backend-Logik)</td>
+              <td>Andrzej</td>
+              <td>3</td>
+            </tr>
+            <tr>
+              <td>TA3.4</td>
+              <td>
+                Ollama LLM-Anbindung für Spartipp-Generierung implementieren
+              </td>
+              <td>Andrzej</td>
+              <td>5</td>
+            </tr>
+            <tr>
+              <td>TA3.5</td>
+              <td>
+                tRPC-Prozeduren für Dashboard-Daten (Monatsübersicht,
+                Kategorien)
+              </td>
+              <td>Andrzej</td>
+              <td>3</td>
+            </tr>
+            <tr>
+              <td>TA3.6</td>
+              <td>Validierung &amp; Error Handling (Zod-Schemas)</td>
+              <td>Andrzej</td>
+              <td>2</td>
+            </tr>
+            <tr>
+              <td>TA3.7</td>
+              <td>Tests für Ausgaben-, Abo- &amp; Spartipp-Modul schreiben</td>
+              <td>Andrzej</td>
+              <td>3</td>
+            </tr>
+            <!-- Anton: Frontend Auth + OCR + Erfassung -->
+            <tr>
+              <td class="highlight" rowspan="8">
+                Auth, OCR &amp; Erfassung — Frontend (Anton)
+              </td>
+              <td>TA4.1</td>
+              <td>
+                Projekt mit Vite + React + TypeScript + Tailwind aufsetzen
+              </td>
+              <td>Anton</td>
+              <td>3</td>
+            </tr>
+            <tr>
+              <td>TA4.2</td>
+              <td>Login- und Registrierungsseite erstellen</td>
+              <td>Anton</td>
+              <td>3</td>
+            </tr>
+            <tr>
+              <td>TA4.3</td>
+              <td>Passwort-Reset-Seite erstellen</td>
+              <td>Anton</td>
+              <td>2</td>
+            </tr>
+            <tr>
+              <td>TA4.4</td>
+              <td>Quittungs-Upload mit OCR-Vorschau implementieren</td>
+              <td>Anton</td>
+              <td>5</td>
+            </tr>
+            <tr>
+              <td>TA4.5</td>
+              <td>Formular zur Ausgabenerfassung erstellen</td>
+              <td>Anton</td>
+              <td>3</td>
+            </tr>
+            <tr>
+              <td>TA4.6</td>
+              <td>Abonnement-Verwaltung erstellen</td>
+              <td>Anton</td>
+              <td>5</td>
+            </tr>
+            <tr>
+              <td>TA4.7</td>
+              <td>Responsive Design &amp; Mobile-Optimierung</td>
+              <td>Anton</td>
+              <td>2</td>
+            </tr>
+            <tr>
+              <td>TA4.8</td>
+              <td>Tests für Auth-, OCR- &amp; Erfassungs-Frontend schreiben</td>
+              <td>Anton</td>
+              <td>3</td>
+            </tr>
+            <!-- Marouane: Frontend Dashboard + Spartipps + DevOps -->
+            <tr>
+              <td class="highlight" rowspan="7">
+                Dashboard, Spartipps &amp; DevOps — Frontend (Marouane)
+              </td>
+              <td>TA5.1</td>
+              <td>Docker Compose Konfiguration (PostgreSQL, Ollama)</td>
+              <td>Marouane</td>
+              <td>3</td>
+            </tr>
+            <tr>
+              <td>TA5.2</td>
+              <td>tRPC-Client-Konfiguration &amp; gemeinsame UI-Komponenten</td>
+              <td>Marouane</td>
+              <td>5</td>
+            </tr>
+            <tr>
+              <td>TA5.3</td>
+              <td>Dashboard-Layout &amp; Navigation erstellen</td>
+              <td>Marouane</td>
+              <td>5</td>
+            </tr>
+            <tr>
+              <td>TA5.4</td>
+              <td>Monatsübersicht mit Gesamtkosten &amp; Balkendiagramm</td>
+              <td>Marouane</td>
+              <td>5</td>
+            </tr>
+            <tr>
+              <td>TA5.5</td>
+              <td>Auswertungsseite mit Spartipps programmieren</td>
+              <td>Marouane</td>
+              <td>5</td>
+            </tr>
+            <tr>
+              <td>TA5.6</td>
+              <td>Ausgabenliste mit Filterung &amp; Pagination</td>
+              <td>Marouane</td>
+              <td>3</td>
+            </tr>
+            <tr>
+              <td>TA5.7</td>
+              <td>Tests für Dashboard- &amp; Spartipp-Frontend schreiben</td>
+              <td>Marouane</td>
+              <td>3</td>
+            </tr>
+            <!-- Abschluss (Team) -->
+            <tr>
+              <td class="highlight" rowspan="5">Abschluss (Team)</td>
+              <td>TA6.1</td>
+              <td>Integrationstests (Modul-übergreifend)</td>
+              <td>Gesamtes Team</td>
+              <td>5</td>
+            </tr>
+            <tr>
+              <td>TA6.2</td>
+              <td>Usability-Test &amp; Performance-Test (Lighthouse)</td>
+              <td>Gesamtes Team</td>
+              <td>3</td>
+            </tr>
+            <tr>
+              <td>TA6.3</td>
+              <td>Sprint-Retro-Protokolle erstellen</td>
+              <td>Andrzej</td>
+              <td>2</td>
+            </tr>
+            <tr>
+              <td>TA6.4</td>
+              <td>Sprint-Retro-Ergebnisse dokumentieren &amp; auswerten</td>
+              <td>Marouane</td>
+              <td>2</td>
+            </tr>
+            <tr>
+              <td>TA6.5</td>
+              <td>Projektdokumentation erstellen</td>
+              <td>Gesamtes Team</td>
+              <td>5</td>
+            </tr>
+          </table>
+
+          <div class="subsection-title">Teamübersicht</div>
+          <table>
+            <tr>
+              <th>Mitarbeiter</th>
+              <th>Rolle</th>
+              <th>Schwerpunkt</th>
+            </tr>
+            <tr>
+              <td class="highlight">Marouane Hammagi</td>
+              <td>Frontend-Entwickler</td>
+              <td>
+                React/TS, Dashboard, Spartipps-UI, DevOps (Docker Compose)
+              </td>
+            </tr>
+            <tr>
+              <td class="highlight">Yassir Elkhaili</td>
+              <td>Backend-Entwickler</td>
+              <td>tRPC/Express, Prisma, Better-Auth, Tesseract OCR</td>
+            </tr>
+            <tr>
+              <td class="highlight">Anton Nikishyn</td>
+              <td>Frontend-Entwickler</td>
+              <td>React, Auth-Seiten, Erfassungs-UI, Responsive Design</td>
+            </tr>
+            <tr>
+              <td class="highlight">Andrzej Wróblewski</td>
+              <td>Backend-Entwickler</td>
+              <td>CRUD-Logik, Ollama/Spartipps, Berechnungslogik</td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- ==================== SECTION 4 ==================== -->
+        <div class="section">
+          <div class="section-title">
+            4 — Projektphasen mit Zeitplanung in Stunden
+          </div>
+
+          <table>
+            <tr>
+              <th style="width: 8%">Phase</th>
+              <th>Beschreibung</th>
+              <th style="width: 14%">Stunden</th>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td>Projektplanung &amp; Analyse</td>
+              <td>8 h</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>Systemdesign (Datenbank &amp; Architektur)</td>
+              <td>8 h</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>Backend-Entwicklung</td>
+              <td>18 h</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td>Frontend-Entwicklung</td>
+              <td>16 h</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td>Analyse- &amp; Spartipp-Logik</td>
+              <td>8 h</td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td>Testphase</td>
+              <td>4 h</td>
+            </tr>
+            <tr>
+              <td>7</td>
+              <td>Dokumentation</td>
+              <td>14 h</td>
+            </tr>
+            <tr class="total-row">
+              <td></td>
+              <td>GESAMTSUMME</td>
+              <td>76 h</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- ====== FOOTER ====== -->
+      <div class="footer">
+        <span>Projektantrag — KlasseBon</span>
+        <span>14 Wochen · 76 Stunden · 4 Personen</span>
+        <span
+          >React/TS/Tailwind · tRPC/Express.js · Better-Auth · Tesseract ·
+          Ollama · Prisma · PostgreSQL · Docker</span
+        >
+      </div>
+    </div>
+  </body>
+</html>
