@@ -10,19 +10,62 @@ datasource db {
     provider = "postgresql"
 }
 
+enum Turnus {
+    WOECHENTLICH
+    MONATLICH
+    JAEHRLICH
+
+    @@map("turnus")
+}
+
 model User {
-    id            String    @id
+    id            String       @id
     name          String
     email         String
-    emailVerified Boolean   @default(false)
+    emailVerified Boolean      @default(false)
     image         String?
-    createdAt     DateTime  @default(now())
-    updatedAt     DateTime  @updatedAt
+    createdAt     DateTime     @default(now())
+    updatedAt     DateTime     @updatedAt
     sessions      Session[]
     accounts      Account[]
+    ausgaben      Ausgabe[]
+    abonnements   Abonnement[]
 
     @@unique([email])
     @@map("user")
+}
+
+model Ausgabe {
+    id           String   @id @default(cuid())
+    titel        String
+    betrag       Float
+    datum        DateTime
+    kategorie    String?
+    beschreibung String?
+    userId       String
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
+
+    @@map("ausgabe")
+}
+
+model Abonnement {
+    id                  String   @id @default(cuid())
+    name                String
+    betrag              Float
+    turnus              Turnus
+    startDatum          DateTime
+    naechsteFaelligkeit DateTime
+    kategorie           String?
+    beschreibung        String?
+    aktiv               Boolean  @default(true)
+    userId              String
+    user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    createdAt           DateTime @default(now())
+    updatedAt           DateTime @updatedAt
+
+    @@map("abonnement")
 }
 
 model Session {
