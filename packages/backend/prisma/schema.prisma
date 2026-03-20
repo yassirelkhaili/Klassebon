@@ -10,6 +10,7 @@ datasource db {
     provider = "postgresql"
 }
 
+//Beantwortet: in welchem Rhythmus das Abo bezahlt wird (MONATLICH/JAEHRLICH/WOECHENTLICH)
 enum Turnus {
     WOECHENTLICH
     MONATLICH
