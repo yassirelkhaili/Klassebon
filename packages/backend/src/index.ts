@@ -18,21 +18,21 @@ app.use(express.json());
 
 // REST health (existing)
 app.get(`${API_PREFIX}/health`, (_req, res) => {
-  const body: HealthResponse = { ok: true, service: "backend" };
-  res.json(body);
+	const body: HealthResponse = { ok: true, service: "backend" };
+	res.json(body);
 });
 
 // TA2.1 tRPC on /api/trpc
 app.use(
-  `${API_PREFIX}/trpc`,
-  trpcExpress.createExpressMiddleware({
-    router: appRouter,
-    createContext,
-  })
+	`${API_PREFIX}/trpc`,
+	trpcExpress.createExpressMiddleware({
+		router: appRouter,
+		createContext,
+	}),
 );
 
 app.listen(PORT, () => {
-  console.log(`Backend listening on http://localhost:${PORT}`);
-  console.log(`  Better Auth: http://localhost:${PORT}${API_PREFIX}/auth`);
-  console.log(`  tRPC:        http://localhost:${PORT}${API_PREFIX}/trpc`);
+	console.log(`Backend listening on http://localhost:${PORT}`);
+	console.log(`  Better Auth: http://localhost:${PORT}${API_PREFIX}/auth`);
+	console.log(`  tRPC:        http://localhost:${PORT}${API_PREFIX}/trpc`);
 });

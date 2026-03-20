@@ -6,12 +6,12 @@
 export const API_PREFIX = "/api";
 
 export interface HealthResponse {
-  ok: boolean;
-  service: string;
+  	ok: boolean;
+  	service: string;
 }
 
 /** Example shared DTO – extend as your app grows */
 export interface UserPreview {
-  id: string;
-  email: string;
+  	id: string;
+  	email: string;
 }

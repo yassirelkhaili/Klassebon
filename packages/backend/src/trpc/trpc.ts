@@ -8,14 +8,14 @@ export const publicProcedure = t.procedure;
 
 /** Require a valid session */
 export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
-  if (!ctx.session?.user) {
-    throw new TRPCError({ code: "UNAUTHORIZED", message: "Not signed in" });
-  }
-  return next({
-    ctx: {
-      ...ctx,
-      session: ctx.session,
-      user: ctx.session.user,
-    },
-  });
+	if (!ctx.session?.user) {
+		throw new TRPCError({ code: "UNAUTHORIZED", message: "Not signed in" });
+	}
+	return next({
+		ctx: {
+		...ctx,
+		session: ctx.session,
+		user: ctx.session.user,
+		},
+	});
 });
