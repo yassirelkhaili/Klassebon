@@ -4,9 +4,9 @@ import { prismaAdapter } from "@better-auth/prisma-adapter";
 import { prisma } from "./prisma.js";
 
 if (!process.env.BETTER_AUTH_SECRET || process.env.BETTER_AUTH_SECRET.length < 32) {
-  console.warn(
-    "[auth] BETTER_AUTH_SECRET must be set and at least 32 characters (openssl rand -base64 32)"
-  );
+	console.warn(
+		"[auth] BETTER_AUTH_SECRET must be set and at least 32 characters (openssl rand -base64 32)"
+	);
 }
 
 /**
