@@ -9,5 +9,5 @@ console.log("API prefix from shared:", API_PREFIX);
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>
+  </React.StrictMode>,
 );
