@@ -110,20 +110,6 @@ klassebon/
 
 ---
 
-## Scripts
-
-| Command               | Description                          |
-|-----------------------|--------------------------------------|
-| `npm run dev`         | Start frontend and backend           |
-| `npm run dev:frontend`| Start frontend only (port 5173)      |
-| `npm run dev:backend` | Start backend only (port 3000)       |
-| `npm run build`       | Build all packages                   |
-| `npm run db:push --workspace=backend`    | Push Prisma schema to DB |
-| `npm run db:migrate --workspace=backend` | Run Prisma migrations   |
-| `npm run db:studio --workspace=backend`  | Open Prisma Studio     |
-
----
-
 ## Tech stack
 
 - **Frontend:** Vite, React, TypeScript, Tailwind
@@ -134,9 +120,3 @@ klassebon/
 - **LLM:** Ollama (planned)
 
 ---
-
-## Further reading
-
-- [Backend README](packages/backend/README.md) — TA2.1, TA2.2, TA2.3 details
-- [Projektantrag](docs/projektantrag_klassebon(7).html)
-- [Projektstrukturplan](docs/projektstrukturplan_klassebon(1).html)
