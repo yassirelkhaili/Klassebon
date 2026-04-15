@@ -1,6 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure, router } from "../trpc.js";
+import { kategorieSchema } from "../kategorien.js";
 
 const abonnementCreateInput = z.object({
     name: z.string().min(1),
@@ -8,7 +9,7 @@ const abonnementCreateInput = z.object({
     turnus: z.enum(["WOECHENTLICH", "MONATLICH", "JAEHRLICH"]),
     startDatum: z.string().datetime(),
     naechsteFaelligkeit: z.string().datetime(),
-    kategorie: z.string().optional(),
+    kategorie: kategorieSchema.optional(),
     beschreibung: z.string().optional(),
 });
 
@@ -35,14 +36,26 @@ const abonnementUpdateInput = abonnementCreateInput.partial().extend({
 export const abonnementsRouter = router({
     /**
      * Testen mit: http://localhost:3000/api/trpc/abonnements.list?batch=1&input={}
+     * Filtern:    http://localhost:3000/api/trpc/abonnements.list?batch=1&input={"0":{"kategorie":"Streaming","nurAktive":true}}
      * Method: GET
      */
-    list: protectedProcedure.query(({ ctx }) =>
-        ctx.prisma.abonnement.findMany({
-            where: { userId: ctx.user.id },
-            orderBy: { naechsteFaelligkeit: "asc" },
-        }),
-    ),
+    list: protectedProcedure
+        .input(
+            z.object({
+                kategorie: kategorieSchema.optional(),  // Wenn nicht angegeben: keine Filterung nach Kategorie
+                nurAktive: z.boolean().optional(),      // Wenn nicht angegeben: sowohl aktive als auch inaktive Abos
+            }).optional(),
+        )
+        .query(({ ctx, input }) =>
+            ctx.prisma.abonnement.findMany({
+                where: {
+                    userId: ctx.user.id,
+                    ...(input?.kategorie ? { kategorie: input.kategorie } : {}),
+                    ...(input?.nurAktive ? { aktiv: true } : {}),
+                },
+                orderBy: { naechsteFaelligkeit: "asc" },
+            }),
+        ),
 
     /**
      * Testen mit: http://localhost:3000/api/trpc/abonnements.getById?batch=1&input={"0":{"id":"<GESUCHTE ID>"}}
@@ -66,13 +79,14 @@ export const abonnementsRouter = router({
      * Headers: Authorization: Bearer <token>
      * Example Body (JSON):
      * 
-        {
-            "0": {
-                "name": "Netflix",
-                "betrag": 12.99,
-                "turnus": "MONATLICH",
-                "startDatum": "2026-01-01T00:00:00Z",
-                "naechsteFaelligkeit": "2026-04-01T00:00:00Z"
+        { 
+            "0": {   
+                "name": "Disney+", 
+                "betrag": 8.99, 
+                "turnus": "MONATLICH", 
+                "startDatum": "2026-01-01T00:00:00Z", 
+                "naechsteFaelligkeit": "2026-04-01T00:00:00Z", 
+                "kategorie": "Streaming" 
             }
         }
      */

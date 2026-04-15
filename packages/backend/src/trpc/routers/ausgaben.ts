@@ -1,12 +1,13 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure, router } from "../trpc.js";
+import { kategorieSchema } from "../kategorien.js";
 
 const ausgabeCreateInput = z.object({
     titel: z.string().min(1),
     betrag: z.number().positive(),
     datum: z.string().datetime(),
-    kategorie: z.string().optional(),
+    kategorie: kategorieSchema.optional(),
     beschreibung: z.string().optional(),
 });
 
@@ -31,15 +32,21 @@ const ausgabeUpdateInput = ausgabeCreateInput.partial().extend({
 
 export const ausgabenRouter = router({
     /**
-     * Testen mit: http://localhost:3000/api/trpc/ausgaben.list?batch=1&input={} 
+     * Testen mit: http://localhost:3000/api/trpc/ausgaben.list?batch=1&input={}
+     * Filtern:    http://localhost:3000/api/trpc/ausgaben.list?batch=1&input={"0":{"kategorie":"Streaming"}}
      * Method: GET
      */
-    list: protectedProcedure.query(({ ctx }) =>
-        ctx.prisma.ausgabe.findMany({
-            where: { userId: ctx.user.id },
-            orderBy: { datum: "desc" },
-        }),
-    ),
+    list: protectedProcedure
+        .input(z.object({ kategorie: kategorieSchema.optional() }).optional())
+        .query(({ ctx, input }) =>
+            ctx.prisma.ausgabe.findMany({
+                where: {
+                    userId: ctx.user.id,
+                    ...(input?.kategorie ? { kategorie: input.kategorie } : {}),
+                },
+                orderBy: { datum: "desc" },
+            }),
+        ),
 
     /**
      * Testen mit: http://localhost:3000/api/trpc/ausgaben.getById?batch=1&input={"0":{"id":"<GESUCHTE ID>"}}
