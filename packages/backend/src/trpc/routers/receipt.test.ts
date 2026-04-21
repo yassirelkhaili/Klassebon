@@ -6,8 +6,6 @@ import { router } from "../trpc.js";
 vi.mock("../../services/ocr.js", () => ({
   processReceipt: vi.fn().mockResolvedValue({
     rawText: "REWE\nMilch 1,99\nGesamt 1,99",
-    extractedAmount: 1.99,
-    extractedCategory: "LEBENSMITTEL",
     confidence: 85,
   }),
 }));
@@ -38,8 +36,6 @@ const caller = (ctx: ReturnType<typeof makeCtx>) => {
   const testRouter = router({ receipt: receiptRouter });
   return testRouter.createCaller(ctx as any);
 };
-
-// ─── receipt.list ────────────────────────────────────────
 
 describe("receipt.list", () => {
   it("returns mapped receipts for current user", async () => {
@@ -86,8 +82,6 @@ describe("receipt.list", () => {
     expect(result).toEqual([]);
   });
 });
-
-// ─── receipt.getById ─────────────────────────────────────
 
 describe("receipt.getById", () => {
   it("returns receipt when owned by current user", async () => {
@@ -137,8 +131,6 @@ describe("receipt.getById", () => {
   });
 });
 
-// ─── receipt.processOcr ──────────────────────────────────
-
 describe("receipt.processOcr", () => {
   it("runs OCR and returns results", async () => {
     const mockPrisma = makeMockPrisma();
@@ -154,16 +146,16 @@ describe("receipt.processOcr", () => {
     mockPrisma.receipt.update.mockResolvedValue({
       id: "r1",
       ocrText: "REWE\nMilch 1,99\nGesamt 1,99",
-      extractedAmount: 1.99,
-      extractedCategory: "LEBENSMITTEL",
+      extractedAmount: null,
+      extractedCategory: null,
     });
 
     const ctx = makeCtx({ prisma: mockPrisma });
     const result = await caller(ctx).receipt.processOcr({ receiptId: "r1" });
 
     expect(result.alreadyProcessed).toBe(false);
-    expect(result.extractedAmount).toBe(1.99);
-    expect(result.extractedCategory).toBe("LEBENSMITTEL");
+    expect(result.extractedAmount).toBeNull();
+    expect(result.extractedCategory).toBeNull();
     expect(result.ocrText).toContain("REWE");
   });
 
@@ -196,8 +188,6 @@ describe("receipt.processOcr", () => {
     await expect(caller(ctx).receipt.processOcr({ receiptId: "nope" })).rejects.toThrow(TRPCError);
   });
 });
-
-// ─── receipt.delete ──────────────────────────────────────
 
 describe("receipt.delete", () => {
   it("deletes receipt owned by current user", async () => {

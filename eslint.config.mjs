@@ -5,10 +5,7 @@ import react from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
 import globals from "globals";
 
-/**
- * Shared ESLint flat config for the monorepo (TypeScript, React, Node).
- * Prettier is last so it disables style rules that conflict with formatting.
- */
+// Monorepo ESLint; Prettier last turns off conflicting style rules.
 export default tseslint.config(
   {
     ignores: [

@@ -7,12 +7,11 @@ Place receipt images here for the integration test (`npm run test:integration`).
 - `1001-receipt.jpg` … `1033-receipt.jpg` — From the
   [ExpressExpense SRD](https://expressexpense.com/blog/free-receipt-images-ocr-machine-learning-dataset/)
   (MIT license, US restaurant receipts). Used to stress-test OCR pipeline.
-- **Add your own** German receipt scans here for category-keyword coverage.
+- **Add your own** receipt scans to exercise Tesseract (OCR integration tests).
 
 ## Requirements
 
 - Supported formats: `.jpg`, `.jpeg`, `.png`, `.webp`, `.bmp`, `.tiff`
-- German receipts match keyword heuristics best (REWE, Aldi, etc.)
 - **Redact personal data** (card numbers, names, addresses) before committing
 
 ## Naming convention (optional but helpful)

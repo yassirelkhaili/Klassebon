@@ -29,8 +29,6 @@ function makeUnauthCtx() {
   };
 }
 
-// ─── publicProcedure ─────────────────────────────────────
-
 describe("publicProcedure", () => {
   it("works without a session", async () => {
     const caller = testRouter.createCaller(makeUnauthCtx() as any);
@@ -44,8 +42,6 @@ describe("publicProcedure", () => {
     expect(result).toBe("public ok");
   });
 });
-
-// ─── protectedProcedure (TA2.4) ──────────────────────────
 
 describe("protectedProcedure (TA2.4)", () => {
   it("allows authenticated users", async () => {

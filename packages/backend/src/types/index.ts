@@ -1,7 +1,3 @@
-/**
- * @fileoverview Define backend interfaces and types here.
- */
-
 import type { Services } from "./enums.js";
 
 export interface HealthResponse {
@@ -30,4 +26,3 @@ export interface CurrentSession {
     image?: string | null | undefined;
   };
 }
-

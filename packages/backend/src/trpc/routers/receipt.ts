@@ -2,55 +2,57 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "../trpc.js";
 import { processReceipt } from "../../services/ocr.js";
+import type { Category } from "../../generated/prisma/client.js";
 
 export const receiptRouter = router({
   /**
-   * Trigger OCR on a previously uploaded receipt image.
-   * The `receiptId` is returned by the REST upload endpoint (POST /api/receipts/upload).
+   * Andrej: raw OCR text for your pipeline is `processReceipt(...).rawText` (see `services/ocr.ts`)
+   * and the same string is stored on the receipt as `ocrText` after this mutation runs. The tRPC
+   * return value also exposes it as `ocrText` for convenience.
    */
-  processOcr: protectedProcedure
-    .input(z.object({ receiptId: z.string().min(1) }))
-    .mutation(async ({ ctx, input }) => {
-      const receipt = await ctx.prisma.receipt.findUnique({
-        where: { id: input.receiptId },
-      });
+  processOcr: protectedProcedure.input(z.object({ receiptId: z.string().min(1) })).mutation(async ({ ctx, input }) => {
+    const receipt = await ctx.prisma.receipt.findUnique({
+      where: { id: input.receiptId },
+    });
 
-      if (!receipt || receipt.userId !== ctx.user.id) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Receipt not found" });
-      }
+    if (!receipt || receipt.userId !== ctx.user.id) {
+      throw new TRPCError({ code: "NOT_FOUND", message: "Receipt not found" });
+    }
 
-      if (receipt.ocrText) {
-        return {
-          id: receipt.id,
-          ocrText: receipt.ocrText,
-          extractedAmount: receipt.extractedAmount ? Number(receipt.extractedAmount) : null,
-          extractedCategory: receipt.extractedCategory,
-          alreadyProcessed: true,
-        };
-      }
-
-      const result = await processReceipt(receipt.imagePath);
-
-      const updated = await ctx.prisma.receipt.update({
-        where: { id: receipt.id },
-        data: {
-          ocrText: result.rawText,
-          extractedAmount: result.extractedAmount,
-          extractedCategory: result.extractedCategory,
-        },
-      });
-
+    if (receipt.ocrText) {
       return {
-        id: updated.id,
-        ocrText: result.rawText,
-        extractedAmount: result.extractedAmount,
-        extractedCategory: result.extractedCategory,
-        confidence: result.confidence,
-        alreadyProcessed: false,
+        id: receipt.id,
+        ocrText: receipt.ocrText,
+        extractedAmount: receipt.extractedAmount ? Number(receipt.extractedAmount) : null,
+        extractedCategory: receipt.extractedCategory,
+        alreadyProcessed: true,
       };
-    }),
+    }
 
-  /** List all receipts for the current user. */
+    const result = await processReceipt(receipt.imagePath);
+
+    const extractedAmount: number | null = null;
+    const extractedCategory: Category | null = null;
+
+    const updated = await ctx.prisma.receipt.update({
+      where: { id: receipt.id },
+      data: {
+        ocrText: result.rawText,
+        extractedAmount,
+        extractedCategory,
+      },
+    });
+
+    return {
+      id: updated.id,
+      ocrText: result.rawText,
+      extractedAmount,
+      extractedCategory,
+      confidence: result.confidence,
+      alreadyProcessed: false,
+    };
+  }),
+
   list: protectedProcedure.query(async ({ ctx }) => {
     const receipts = await ctx.prisma.receipt.findMany({
       where: { userId: ctx.user.id },
@@ -67,41 +69,35 @@ export const receiptRouter = router({
     }));
   }),
 
-  /** Get a single receipt by ID. */
-  getById: protectedProcedure
-    .input(z.object({ id: z.string().min(1) }))
-    .query(async ({ ctx, input }) => {
-      const receipt = await ctx.prisma.receipt.findUnique({
-        where: { id: input.id },
-      });
+  getById: protectedProcedure.input(z.object({ id: z.string().min(1) })).query(async ({ ctx, input }) => {
+    const receipt = await ctx.prisma.receipt.findUnique({
+      where: { id: input.id },
+    });
 
-      if (!receipt || receipt.userId !== ctx.user.id) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Receipt not found" });
-      }
+    if (!receipt || receipt.userId !== ctx.user.id) {
+      throw new TRPCError({ code: "NOT_FOUND", message: "Receipt not found" });
+    }
 
-      return {
-        id: receipt.id,
-        imagePath: receipt.imagePath,
-        ocrText: receipt.ocrText,
-        extractedAmount: receipt.extractedAmount ? Number(receipt.extractedAmount) : null,
-        extractedCategory: receipt.extractedCategory,
-        createdAt: receipt.createdAt,
-      };
-    }),
+    return {
+      id: receipt.id,
+      imagePath: receipt.imagePath,
+      ocrText: receipt.ocrText,
+      extractedAmount: receipt.extractedAmount ? Number(receipt.extractedAmount) : null,
+      extractedCategory: receipt.extractedCategory,
+      createdAt: receipt.createdAt,
+    };
+  }),
 
-  /** Delete a receipt. */
-  delete: protectedProcedure
-    .input(z.object({ id: z.string().min(1) }))
-    .mutation(async ({ ctx, input }) => {
-      const receipt = await ctx.prisma.receipt.findUnique({
-        where: { id: input.id },
-      });
+  delete: protectedProcedure.input(z.object({ id: z.string().min(1) })).mutation(async ({ ctx, input }) => {
+    const receipt = await ctx.prisma.receipt.findUnique({
+      where: { id: input.id },
+    });
 
-      if (!receipt || receipt.userId !== ctx.user.id) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Receipt not found" });
-      }
+    if (!receipt || receipt.userId !== ctx.user.id) {
+      throw new TRPCError({ code: "NOT_FOUND", message: "Receipt not found" });
+    }
 
-      await ctx.prisma.receipt.delete({ where: { id: receipt.id } });
-      return { success: true };
-    }),
+    await ctx.prisma.receipt.delete({ where: { id: receipt.id } });
+    return { success: true };
+  }),
 });

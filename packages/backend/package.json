@@ -12,9 +12,10 @@
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
-    "test": "vitest run --exclude test/ocr-integration.test.ts",
-    "test:watch": "vitest --exclude test/ocr-integration.test.ts",
-    "test:integration": "vitest run test/ocr-integration.test.ts"
+    "test": "vitest run --exclude test/ocr-integration.test.ts --exclude test/receipt-upload-ocr-http.integration.test.ts --exclude test/auth-http-integration.test.ts",
+    "test:watch": "vitest --exclude test/ocr-integration.test.ts --exclude test/receipt-upload-ocr-http.integration.test.ts --exclude test/auth-http-integration.test.ts",
+    "test:integration": "vitest run test/ocr-integration.test.ts test/receipt-upload-ocr-http.integration.test.ts test/auth-http-integration.test.ts",
+    "test:integration:api": "vitest run test/auth-http-integration.test.ts test/receipt-upload-ocr-http.integration.test.ts"
   },
   "dependencies": {
     "@better-auth/prisma-adapter": "^1.5.5",
@@ -26,16 +27,23 @@
     "dotenv": "^16.6.1",
     "express": "^4.21.0",
     "multer": "^2.1.1",
+    "nodemailer": "^8.0.5",
     "pg": "^8.20.0",
+    "swagger-ui-express": "^5.0.1",
     "tesseract.js": "^7.0.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@trpc/client": "^11.16.0",
     "@types/express": "^4.17.21",
     "@types/multer": "^2.1.0",
     "@types/node": "^22.9.0",
+    "@types/nodemailer": "^8.0.0",
     "@types/pg": "^8.11.11",
+    "@types/supertest": "^7.2.0",
+    "@types/swagger-ui-express": "^4.1.8",
     "prisma": "^7.5.0",
+    "supertest": "^7.2.2",
     "tsx": "^4.19.2",
     "typescript": "^5.6.0",
     "vitest": "^4.1.3"

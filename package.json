@@ -5,7 +5,7 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "concurrently -n fe,be \"npm run dev --workspace=frontend\" \"npm run dev --workspace=backend\"",
+    "dev": "concurrently -n be,fe -c auto \"npm run dev --workspace=backend\" \"wait-on -t 120000 -i 200 http://127.0.0.1:3000/api/health && npm run dev --workspace=frontend\"",
     "dev:frontend": "npm run dev --workspace=frontend",
     "dev:backend": "npm run dev --workspace=backend",
     "build": "npm run build --workspaces --if-present",
@@ -28,6 +28,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "globals": "^17.4.0",
     "prettier": "^3.8.1",
-    "typescript-eslint": "^8.58.1"
+    "typescript-eslint": "^8.58.1",
+    "wait-on": "^8.0.1"
   }
 }

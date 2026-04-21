@@ -2,9 +2,6 @@ import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "./trpc.js";
 import { receiptRouter } from "./routers/receipt.js";
 
-/**
- * Root tRPC router (TA2.1) — extend with your domain procedures.
- */
 export const appRouter = router({
   health: publicProcedure.query(() => ({
     ok: true as const,

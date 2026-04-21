@@ -32,21 +32,9 @@ afterAll(async () => {
   await terminateOcrWorker();
 });
 
-const VALID_CATEGORIES = [
-  "STREAMING",
-  "LEBENSMITTEL",
-  "VERSICHERUNG",
-  "TRANSPORT",
-  "WOHNUNG",
-  "GESUNDHEIT",
-  "FREIZEIT",
-  "BILDUNG",
-  "SONSTIGES",
-];
-
-describe("OCR integration (real Tesseract)", () => {
+describe("OCR integration (Tesseract)", () => {
   if (fixtures.length === 0) {
-    it.skip("no fixture images found in test/fixtures/ — add receipt images to run", () => {});
+    it.skip("no fixture images found in test/fixtures/, add receipt images to run", () => {});
     return;
   }
 
@@ -62,20 +50,6 @@ describe("OCR integration (real Tesseract)", () => {
       it("has a confidence score > 0", async () => {
         const result = await getResult(imagePath);
         expect(result.confidence).toBeGreaterThan(0);
-      }, 60_000);
-
-      it("extracts a plausible amount or null", async () => {
-        const result = await getResult(imagePath);
-        if (result.extractedAmount !== null) {
-          expect(result.extractedAmount).toBeGreaterThan(0);
-          expect(result.extractedAmount).toBeLessThan(100_000);
-        }
-      }, 60_000);
-
-      it("returns a valid category", async () => {
-        const result = await getResult(imagePath);
-        expect(result.extractedCategory).not.toBeNull();
-        expect(VALID_CATEGORIES).toContain(result.extractedCategory);
       }, 60_000);
     });
   }

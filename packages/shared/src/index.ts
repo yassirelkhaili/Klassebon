@@ -4,3 +4,9 @@
  */
 
 export const api_prefix = "/api";
+
+/** GET /api/health JSON body (matches backend `HealthResponse`). */
+export interface HealthResponse {
+  ok: boolean;
+  service: string;
+}
