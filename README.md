@@ -134,9 +134,3 @@ klassebon/
 - **LLM:** Ollama (planned)
 
 ---
-
-## Further reading
-
-- [Backend README](packages/backend/README.md) — TA2.1, TA2.2, TA2.3 details
-- [Projektantrag](<docs/projektantrag_klassebon(7).html>)
-- [Projektstrukturplan](<docs/projektstrukturplan_klassebon(1).html>)
