@@ -1,375 +1,591 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Projektstrukturplan — KlasseBon</title>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "DM Sans", sans-serif;
+        background-color: #e8e8e8;
+        color: #1a1a1a;
+        padding: 30px;
+        -webkit-font-smoothing: antialiased;
+      }
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        box-shadow: 0 4px 40px rgba(0, 0, 0, 0.12);
+      }
+      .header {
+        background-color: #1a1a1a;
+        color: #fff;
+        padding: 40px 50px 35px;
+      }
+      .header-label {
+        font-family: "Space Mono", monospace;
+        font-size: 0.75em;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        color: #888;
+        margin-bottom: 10px;
+      }
+      .header h1 {
+        font-size: 2em;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+      }
+      .header p {
+        font-size: 0.95em;
+        color: #aaa;
+        margin-top: 4px;
+      }
+
+      .content {
+        padding: 40px 30px 50px;
+        overflow-x: auto;
+      }
+
+      /* === TREE STRUCTURE === */
+      .tree {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-width: 1300px;
+      }
+
+      /* Root node */
+      .root {
+        background: #1a1a1a;
+        color: #fff;
+        padding: 14px 32px;
+        font-weight: 700;
+        font-size: 1.05em;
+        letter-spacing: -0.3px;
+        margin-bottom: 0;
+        position: relative;
+      }
+      .root::after {
+        content: "";
+        position: absolute;
+        bottom: -30px;
+        left: 50%;
+        width: 2px;
+        height: 30px;
+        background: #1a1a1a;
+      }
+
+      /* Connector line horizontal */
+      .h-line {
+        width: 100%;
+        height: 2px;
+        background: #1a1a1a;
+        margin-top: 30px;
+        margin-bottom: 0;
+        position: relative;
+      }
+
+      /* Level 1: Hauptaufgaben */
+      .level-1 {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        gap: 6px;
+        margin-top: 0;
+      }
+      .ha-group {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+      }
+      .ha-group::before {
+        content: "";
+        width: 2px;
+        height: 24px;
+        background: #1a1a1a;
+      }
+      .ha-box {
+        background: #2a2a2a;
+        color: #fff;
+        padding: 10px 8px;
+        text-align: center;
+        font-size: 0.72em;
+        font-weight: 600;
+        width: 100%;
+        min-height: 58px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1.3;
+        position: relative;
+      }
+      .ha-box::after {
+        content: "";
+        position: absolute;
+        bottom: -20px;
+        left: 50%;
+        width: 2px;
+        height: 20px;
+        background: #ccc;
+      }
+
+      /* Level 2: Teilaufgaben */
+      .ta-list {
+        margin-top: 20px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+      .ta-box {
+        background: #f5f5f5;
+        border-left: 3px solid #1a1a1a;
+        padding: 6px 8px;
+        font-size: 0.65em;
+        line-height: 1.35;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 4px;
+      }
+      .ta-box .ta-nr {
+        font-family: "Space Mono", monospace;
+        font-size: 0.85em;
+        color: #888;
+        white-space: nowrap;
+        min-width: 36px;
+      }
+      .ta-box .ta-name {
+        flex: 1;
+        font-weight: 500;
+      }
+      .ta-box .ta-person {
+        font-size: 0.85em;
+        color: #666;
+        white-space: nowrap;
+        text-align: right;
+      }
+      .ta-box .ta-sp {
+        font-family: "Space Mono", monospace;
+        font-size: 0.85em;
+        color: #999;
+        white-space: nowrap;
+        min-width: 22px;
+        text-align: right;
+      }
+
+      /* Color coding per module */
+      .ha-box.planung {
+        background: #333;
+      }
+      .ha-box.backend-y {
+        background: #1a5276;
+      }
+      .ha-box.backend-a {
+        background: #6c3483;
+      }
+      .ha-box.frontend-an {
+        background: #117a65;
+      }
+      .ha-box.frontend-m {
+        background: #b9770e;
+      }
+      .ha-box.abschluss {
+        background: #555;
+      }
+      .ha-box.setup {
+        background: #1a1a1a;
+      }
+
+      .ta-box.planung {
+        border-left-color: #333;
+      }
+      .ta-box.backend-y {
+        border-left-color: #1a5276;
+      }
+      .ta-box.backend-a {
+        border-left-color: #6c3483;
+      }
+      .ta-box.frontend-an {
+        border-left-color: #117a65;
+      }
+      .ta-box.frontend-m {
+        border-left-color: #b9770e;
+      }
+      .ta-box.abschluss {
+        border-left-color: #555;
+      }
+      .ta-box.setup {
+        border-left-color: #1a1a1a;
+      }
+
+      /* Footer */
+      .footer {
+        background-color: #1a1a1a;
+        color: #666;
+        padding: 18px 50px;
+        font-size: 0.75em;
+        display: flex;
+        justify-content: space-between;
+        font-family: "Space Mono", monospace;
+      }
+
+      /* Legend */
+      .legend {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.72em;
+        color: #666;
+      }
+      .legend-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 2px;
+      }
+
+      @media print {
         body {
-            font-family: 'DM Sans', sans-serif;
-            background-color: #e8e8e8;
-            color: #1a1a1a;
-            padding: 30px;
-            -webkit-font-smoothing: antialiased;
+          padding: 0;
+          background: #fff;
         }
         .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background-color: #ffffff;
-            box-shadow: 0 4px 40px rgba(0,0,0,0.12);
+          box-shadow: none;
         }
-        .header {
-            background-color: #1a1a1a;
-            color: #fff;
-            padding: 40px 50px 35px;
-        }
-        .header-label {
-            font-family: 'Space Mono', monospace;
-            font-size: 0.75em;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            color: #888;
-            margin-bottom: 10px;
-        }
-        .header h1 {
-            font-size: 2em;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-        .header p {
-            font-size: 0.95em;
-            color: #aaa;
-            margin-top: 4px;
-        }
-
         .content {
-            padding: 40px 30px 50px;
-            overflow-x: auto;
+          padding: 20px 15px;
         }
-
-        /* === TREE STRUCTURE === */
-        .tree {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-width: 1300px;
-        }
-
-        /* Root node */
-        .root {
-            background: #1a1a1a;
-            color: #fff;
-            padding: 14px 32px;
-            font-weight: 700;
-            font-size: 1.05em;
-            letter-spacing: -0.3px;
-            margin-bottom: 0;
-            position: relative;
-        }
-        .root::after {
-            content: '';
-            position: absolute;
-            bottom: -30px;
-            left: 50%;
-            width: 2px;
-            height: 30px;
-            background: #1a1a1a;
-        }
-
-        /* Connector line horizontal */
-        .h-line {
-            width: 100%;
-            height: 2px;
-            background: #1a1a1a;
-            margin-top: 30px;
-            margin-bottom: 0;
-            position: relative;
-        }
-
-        /* Level 1: Hauptaufgaben */
-        .level-1 {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            gap: 6px;
-            margin-top: 0;
-        }
-        .ha-group {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-        }
-        .ha-group::before {
-            content: '';
-            width: 2px;
-            height: 24px;
-            background: #1a1a1a;
-        }
-        .ha-box {
-            background: #2a2a2a;
-            color: #fff;
-            padding: 10px 8px;
-            text-align: center;
-            font-size: 0.72em;
-            font-weight: 600;
-            width: 100%;
-            min-height: 58px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            line-height: 1.3;
-            position: relative;
-        }
-        .ha-box::after {
-            content: '';
-            position: absolute;
-            bottom: -20px;
-            left: 50%;
-            width: 2px;
-            height: 20px;
-            background: #ccc;
-        }
-
-        /* Level 2: Teilaufgaben */
-        .ta-list {
-            margin-top: 20px;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-        }
-        .ta-box {
-            background: #f5f5f5;
-            border-left: 3px solid #1a1a1a;
-            padding: 6px 8px;
-            font-size: 0.65em;
-            line-height: 1.35;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 4px;
-        }
-        .ta-box .ta-nr {
-            font-family: 'Space Mono', monospace;
-            font-size: 0.85em;
-            color: #888;
-            white-space: nowrap;
-            min-width: 36px;
-        }
-        .ta-box .ta-name {
-            flex: 1;
-            font-weight: 500;
-        }
-        .ta-box .ta-person {
-            font-size: 0.85em;
-            color: #666;
-            white-space: nowrap;
-            text-align: right;
-        }
-        .ta-box .ta-sp {
-            font-family: 'Space Mono', monospace;
-            font-size: 0.85em;
-            color: #999;
-            white-space: nowrap;
-            min-width: 22px;
-            text-align: right;
-        }
-
-        /* Color coding per module */
-        .ha-box.planung { background: #333; }
-        .ha-box.backend-y { background: #1a5276; }
-        .ha-box.backend-a { background: #6c3483; }
-        .ha-box.frontend-an { background: #117a65; }
-        .ha-box.frontend-m { background: #b9770e; }
-        .ha-box.abschluss { background: #555; }
-        .ha-box.setup { background: #1a1a1a; }
-
-        .ta-box.planung { border-left-color: #333; }
-        .ta-box.backend-y { border-left-color: #1a5276; }
-        .ta-box.backend-a { border-left-color: #6c3483; }
-        .ta-box.frontend-an { border-left-color: #117a65; }
-        .ta-box.frontend-m { border-left-color: #b9770e; }
-        .ta-box.abschluss { border-left-color: #555; }
-        .ta-box.setup { border-left-color: #1a1a1a; }
-
-        /* Footer */
-        .footer {
-            background-color: #1a1a1a;
-            color: #666;
-            padding: 18px 50px;
-            font-size: 0.75em;
-            display: flex;
-            justify-content: space-between;
-            font-family: 'Space Mono', monospace;
-        }
-
-        /* Legend */
-        .legend {
-            display: flex;
-            gap: 16px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.72em;
-            color: #666;
-        }
-        .legend-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 2px;
-        }
-
-        @media print {
-            body { padding: 0; background: #fff; }
-            .container { box-shadow: none; }
-            .content { padding: 20px 15px; }
-        }
+      }
     </style>
-</head>
-<body>
-<div class="container">
-
-    <div class="header">
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
         <div class="header-label">Projektstrukturplan (PSP)</div>
         <h1>KlasseBon</h1>
-        <p>Webbasierte Ausgabenverwaltung mit OCR &amp; KI-Spartipps — 14 Wochen · 76 Stunden · 4 Personen</p>
-    </div>
+        <p>
+          Webbasierte Ausgabenverwaltung mit OCR &amp; KI-Spartipps — 14 Wochen · 76 Stunden · 4
+          Personen
+        </p>
+      </div>
 
-    <div class="content">
-
+      <div class="content">
         <div class="legend">
-            <div class="legend-item"><div class="legend-dot" style="background:#333"></div>Planung</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#1a1a1a"></div>Setup/DevOps</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#1a5276"></div>Backend — Yassir</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#6c3483"></div>Backend — Andrzej</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#117a65"></div>Frontend — Anton</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#b9770e"></div>Frontend — Marouane</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#555"></div>Abschluss</div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background: #333"></div>
+            Planung
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background: #1a1a1a"></div>
+            Setup/DevOps
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background: #1a5276"></div>
+            Backend — Yassir
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background: #6c3483"></div>
+            Backend — Andrzej
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background: #117a65"></div>
+            Frontend — Anton
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background: #b9770e"></div>
+            Frontend — Marouane
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background: #555"></div>
+            Abschluss
+          </div>
         </div>
 
         <div class="tree">
+          <!-- ROOT -->
+          <div class="root">KlasseBon — Webbasierte Ausgabenverwaltung</div>
 
-            <!-- ROOT -->
-            <div class="root">KlasseBon — Webbasierte Ausgabenverwaltung</div>
+          <!-- Horizontal connector -->
+          <div class="h-line"></div>
 
-            <!-- Horizontal connector -->
-            <div class="h-line"></div>
-
-            <!-- LEVEL 1: Hauptaufgaben with Teilaufgaben -->
-            <div class="level-1">
-
-                <!-- HA1: Planung -->
-                <div class="ha-group">
-                    <div class="ha-box planung">HA1<br>Projektplanung &amp; Systemdesign</div>
-                    <div class="ta-list">
-                        <div class="ta-box planung"><span class="ta-nr">TA1.1</span><span class="ta-name">Anforderungsanalyse &amp; Recherche</span><span class="ta-sp">3</span></div>
-                        <div class="ta-box planung"><span class="ta-nr">TA1.2</span><span class="ta-name">Projektantrag erstellen</span><span class="ta-sp">3</span></div>
-                        <div class="ta-box planung"><span class="ta-nr">TA1.3</span><span class="ta-name">Jira-Projektstrukturplan</span><span class="ta-sp">3</span></div>
-                        <div class="ta-box planung"><span class="ta-nr">TA1.4</span><span class="ta-name">Figma-Prototyp &amp; UI-Design</span><span class="ta-sp">5</span></div>
-                        <div class="ta-box planung"><span class="ta-nr">TA1.5</span><span class="ta-name">Klassendiagramm (UML)</span><span class="ta-sp">3</span></div>
-                        <div class="ta-box planung"><span class="ta-nr">TA1.6</span><span class="ta-name">Use-Case-Diagramm</span><span class="ta-sp">3</span></div>
-                        <div class="ta-box planung"><span class="ta-nr">TA1.7</span><span class="ta-name">ER-Diagramm</span><span class="ta-sp">3</span></div>
-                        <div class="ta-box planung"><span class="ta-nr">TA1.8</span><span class="ta-name">Netzplan erstellen</span><span class="ta-sp">3</span></div>
-                        <div class="ta-box planung"><span class="ta-nr">TA1.9</span><span class="ta-name">API-Spezifikation (tRPC)</span><span class="ta-sp">3</span></div>
-                    </div>
+          <!-- LEVEL 1: Hauptaufgaben with Teilaufgaben -->
+          <div class="level-1">
+            <!-- HA1: Planung -->
+            <div class="ha-group">
+              <div class="ha-box planung">HA1<br />Projektplanung &amp; Systemdesign</div>
+              <div class="ta-list">
+                <div class="ta-box planung">
+                  <span class="ta-nr">TA1.1</span
+                  ><span class="ta-name">Anforderungsanalyse &amp; Recherche</span
+                  ><span class="ta-sp">3</span>
                 </div>
-
-                <!-- HA2: Setup -->
-                <div class="ha-group">
-                    <div class="ha-box setup">HA2<br>Projekt-Setup, Docker &amp; Datenbank</div>
-                    <div class="ta-list">
-                        <div class="ta-box setup"><span class="ta-nr">TA5.1</span><span class="ta-name">Docker Compose (PostgreSQL, Ollama)</span><span class="ta-sp">3</span></div>
-                        <div class="ta-box setup"><span class="ta-nr">TA2.1</span><span class="ta-name">Node.js &amp; Express + tRPC</span><span class="ta-sp">3</span></div>
-                        <div class="ta-box setup"><span class="ta-nr">TA2.2</span><span class="ta-name">PostgreSQL &amp; Prisma ORM</span><span class="ta-sp">3</span></div>
-                        <div class="ta-box setup"><span class="ta-nr">TA4.1</span><span class="ta-name">Vite + React + TS + Tailwind</span><span class="ta-sp">3</span></div>
-                        <div class="ta-box setup"><span class="ta-nr">TA5.2</span><span class="ta-name">tRPC-Client &amp; UI-Komponenten</span><span class="ta-sp">5</span></div>
-                    </div>
+                <div class="ta-box planung">
+                  <span class="ta-nr">TA1.2</span
+                  ><span class="ta-name">Projektantrag erstellen</span><span class="ta-sp">3</span>
                 </div>
-
-                <!-- HA3: Backend Yassir -->
-                <div class="ha-group">
-                    <div class="ha-box backend-y">HA3<br>Auth &amp; OCR — Backend</div>
-                    <div class="ta-list">
-                        <div class="ta-box backend-y"><span class="ta-nr">TA2.3</span><span class="ta-name">Better-Auth einrichten</span><span class="ta-sp">5</span></div>
-                        <div class="ta-box backend-y"><span class="ta-nr">TA2.4</span><span class="ta-name">Geschützte Routen &amp; Middleware</span><span class="ta-sp">3</span></div>
-                        <div class="ta-box backend-y"><span class="ta-nr">TA2.5</span><span class="ta-name">Tesseract OCR-Integration</span><span class="ta-sp">5</span></div>
-                        <div class="ta-box backend-y"><span class="ta-nr">TA2.6</span><span class="ta-name">Passwort-Reset-Endpunkt</span><span class="ta-sp">2</span></div>
-                        <div class="ta-box backend-y"><span class="ta-nr">TA2.7</span><span class="ta-name">Tests Auth- &amp; OCR-Modul</span><span class="ta-sp">3</span></div>
-                    </div>
+                <div class="ta-box planung">
+                  <span class="ta-nr">TA1.3</span
+                  ><span class="ta-name">Jira-Projektstrukturplan</span><span class="ta-sp">3</span>
                 </div>
-
-                <!-- HA4: Backend Andrzej -->
-                <div class="ha-group">
-                    <div class="ha-box backend-a">HA4<br>Ausgaben, Abos &amp; Spartipps — Backend</div>
-                    <div class="ta-list">
-                        <div class="ta-box backend-a"><span class="ta-nr">TA3.1</span><span class="ta-name">CRUD Ausgaben &amp; Abonnements</span><span class="ta-sp">5</span></div>
-                        <div class="ta-box backend-a"><span class="ta-nr">TA3.2</span><span class="ta-name">Berechnung Monatskosten</span><span class="ta-sp">3</span></div>
-                        <div class="ta-box backend-a"><span class="ta-nr">TA3.3</span><span class="ta-name">Kategorisierung &amp; Filter</span><span class="ta-sp">3</span></div>
-                        <div class="ta-box backend-a"><span class="ta-nr">TA3.4</span><span class="ta-name">Ollama LLM Spartipps</span><span class="ta-sp">5</span></div>
-                        <div class="ta-box backend-a"><span class="ta-nr">TA3.5</span><span class="ta-name">Dashboard-Daten Prozeduren</span><span class="ta-sp">3</span></div>
-                        <div class="ta-box backend-a"><span class="ta-nr">TA3.6</span><span class="ta-name">Zod-Validierung &amp; Error Handling</span><span class="ta-sp">2</span></div>
-                        <div class="ta-box backend-a"><span class="ta-nr">TA3.7</span><span class="ta-name">Tests Ausgaben/Abo/Spartipps</span><span class="ta-sp">3</span></div>
-                    </div>
+                <div class="ta-box planung">
+                  <span class="ta-nr">TA1.4</span
+                  ><span class="ta-name">Figma-Prototyp &amp; UI-Design</span
+                  ><span class="ta-sp">5</span>
                 </div>
-
-                <!-- HA5: Frontend Anton -->
-                <div class="ha-group">
-                    <div class="ha-box frontend-an">HA5<br>Auth, OCR &amp; Erfassung — Frontend</div>
-                    <div class="ta-list">
-                        <div class="ta-box frontend-an"><span class="ta-nr">TA4.2</span><span class="ta-name">Login- &amp; Registrierungsseite</span><span class="ta-sp">3</span></div>
-                        <div class="ta-box frontend-an"><span class="ta-nr">TA4.3</span><span class="ta-name">Passwort-Reset-Seite</span><span class="ta-sp">2</span></div>
-                        <div class="ta-box frontend-an"><span class="ta-nr">TA4.4</span><span class="ta-name">OCR-Upload &amp; Vorschau</span><span class="ta-sp">5</span></div>
-                        <div class="ta-box frontend-an"><span class="ta-nr">TA4.5</span><span class="ta-name">Ausgabenerfassungs-Formular</span><span class="ta-sp">3</span></div>
-                        <div class="ta-box frontend-an"><span class="ta-nr">TA4.6</span><span class="ta-name">Abonnement-Verwaltung</span><span class="ta-sp">5</span></div>
-                        <div class="ta-box frontend-an"><span class="ta-nr">TA4.7</span><span class="ta-name">Responsive Design &amp; Mobile</span><span class="ta-sp">2</span></div>
-                        <div class="ta-box frontend-an"><span class="ta-nr">TA4.8</span><span class="ta-name">Tests Frontend Auth/OCR</span><span class="ta-sp">3</span></div>
-                    </div>
+                <div class="ta-box planung">
+                  <span class="ta-nr">TA1.5</span><span class="ta-name">Klassendiagramm (UML)</span
+                  ><span class="ta-sp">3</span>
                 </div>
-
-                <!-- HA6: Frontend Marouane -->
-                <div class="ha-group">
-                    <div class="ha-box frontend-m">HA6<br>Dashboard &amp; Spartipps — Frontend</div>
-                    <div class="ta-list">
-                        <div class="ta-box frontend-m"><span class="ta-nr">TA5.3</span><span class="ta-name">Dashboard-Layout &amp; Navigation</span><span class="ta-sp">5</span></div>
-                        <div class="ta-box frontend-m"><span class="ta-nr">TA5.4</span><span class="ta-name">Monatsübersicht &amp; Balkendiagramm</span><span class="ta-sp">5</span></div>
-                        <div class="ta-box frontend-m"><span class="ta-nr">TA5.5</span><span class="ta-name">Auswertungsseite Spartipps</span><span class="ta-sp">5</span></div>
-                        <div class="ta-box frontend-m"><span class="ta-nr">TA5.6</span><span class="ta-name">Ausgabenliste &amp; Pagination</span><span class="ta-sp">3</span></div>
-                        <div class="ta-box frontend-m"><span class="ta-nr">TA5.7</span><span class="ta-name">Tests Dashboard/Spartipps</span><span class="ta-sp">3</span></div>
-                    </div>
+                <div class="ta-box planung">
+                  <span class="ta-nr">TA1.6</span><span class="ta-name">Use-Case-Diagramm</span
+                  ><span class="ta-sp">3</span>
                 </div>
-
-                <!-- HA7: Abschluss -->
-                <div class="ha-group">
-                    <div class="ha-box abschluss">HA7<br>Testing &amp; Dokumentation</div>
-                    <div class="ta-list">
-                        <div class="ta-box abschluss"><span class="ta-nr">TA6.1</span><span class="ta-name">Integrationstests</span><span class="ta-sp">5</span></div>
-                        <div class="ta-box abschluss"><span class="ta-nr">TA6.2</span><span class="ta-name">Usability- &amp; Performance-Test</span><span class="ta-sp">3</span></div>
-                        <div class="ta-box abschluss"><span class="ta-nr">TA6.3</span><span class="ta-name">Sprint-Retro-Protokolle</span><span class="ta-sp">2</span></div>
-                        <div class="ta-box abschluss"><span class="ta-nr">TA6.4</span><span class="ta-name">Sprint-Retro dokumentieren</span><span class="ta-sp">2</span></div>
-                        <div class="ta-box abschluss"><span class="ta-nr">TA6.5</span><span class="ta-name">Projektdokumentation</span><span class="ta-sp">5</span></div>
-                    </div>
+                <div class="ta-box planung">
+                  <span class="ta-nr">TA1.7</span><span class="ta-name">ER-Diagramm</span
+                  ><span class="ta-sp">3</span>
                 </div>
-
+                <div class="ta-box planung">
+                  <span class="ta-nr">TA1.8</span><span class="ta-name">Netzplan erstellen</span
+                  ><span class="ta-sp">3</span>
+                </div>
+                <div class="ta-box planung">
+                  <span class="ta-nr">TA1.9</span
+                  ><span class="ta-name">API-Spezifikation (tRPC)</span><span class="ta-sp">3</span>
+                </div>
+              </div>
             </div>
 
+            <!-- HA2: Setup -->
+            <div class="ha-group">
+              <div class="ha-box setup">HA2<br />Projekt-Setup, Docker &amp; Datenbank</div>
+              <div class="ta-list">
+                <div class="ta-box setup">
+                  <span class="ta-nr">TA5.1</span
+                  ><span class="ta-name">Docker Compose (PostgreSQL, Ollama)</span
+                  ><span class="ta-sp">3</span>
+                </div>
+                <div class="ta-box setup">
+                  <span class="ta-nr">TA2.1</span
+                  ><span class="ta-name">Node.js &amp; Express + tRPC</span
+                  ><span class="ta-sp">3</span>
+                </div>
+                <div class="ta-box setup">
+                  <span class="ta-nr">TA2.2</span
+                  ><span class="ta-name">PostgreSQL &amp; Prisma ORM</span
+                  ><span class="ta-sp">3</span>
+                </div>
+                <div class="ta-box setup">
+                  <span class="ta-nr">TA4.1</span
+                  ><span class="ta-name">Vite + React + TS + Tailwind</span
+                  ><span class="ta-sp">3</span>
+                </div>
+                <div class="ta-box setup">
+                  <span class="ta-nr">TA5.2</span
+                  ><span class="ta-name">tRPC-Client &amp; UI-Komponenten</span
+                  ><span class="ta-sp">5</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- HA3: Backend Yassir -->
+            <div class="ha-group">
+              <div class="ha-box backend-y">HA3<br />Auth &amp; OCR — Backend</div>
+              <div class="ta-list">
+                <div class="ta-box backend-y">
+                  <span class="ta-nr">TA2.3</span><span class="ta-name">Better-Auth einrichten</span
+                  ><span class="ta-sp">5</span>
+                </div>
+                <div class="ta-box backend-y">
+                  <span class="ta-nr">TA2.4</span
+                  ><span class="ta-name">Geschützte Routen &amp; Middleware</span
+                  ><span class="ta-sp">3</span>
+                </div>
+                <div class="ta-box backend-y">
+                  <span class="ta-nr">TA2.5</span
+                  ><span class="ta-name">Tesseract OCR-Integration</span
+                  ><span class="ta-sp">5</span>
+                </div>
+                <div class="ta-box backend-y">
+                  <span class="ta-nr">TA2.6</span
+                  ><span class="ta-name">Passwort-Reset-Endpunkt</span><span class="ta-sp">2</span>
+                </div>
+                <div class="ta-box backend-y">
+                  <span class="ta-nr">TA2.7</span
+                  ><span class="ta-name">Tests Auth- &amp; OCR-Modul</span
+                  ><span class="ta-sp">3</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- HA4: Backend Andrzej -->
+            <div class="ha-group">
+              <div class="ha-box backend-a">HA4<br />Ausgaben, Abos &amp; Spartipps — Backend</div>
+              <div class="ta-list">
+                <div class="ta-box backend-a">
+                  <span class="ta-nr">TA3.1</span
+                  ><span class="ta-name">CRUD Ausgaben &amp; Abonnements</span
+                  ><span class="ta-sp">5</span>
+                </div>
+                <div class="ta-box backend-a">
+                  <span class="ta-nr">TA3.2</span
+                  ><span class="ta-name">Berechnung Monatskosten</span><span class="ta-sp">3</span>
+                </div>
+                <div class="ta-box backend-a">
+                  <span class="ta-nr">TA3.3</span
+                  ><span class="ta-name">Kategorisierung &amp; Filter</span
+                  ><span class="ta-sp">3</span>
+                </div>
+                <div class="ta-box backend-a">
+                  <span class="ta-nr">TA3.4</span><span class="ta-name">Ollama LLM Spartipps</span
+                  ><span class="ta-sp">5</span>
+                </div>
+                <div class="ta-box backend-a">
+                  <span class="ta-nr">TA3.5</span
+                  ><span class="ta-name">Dashboard-Daten Prozeduren</span
+                  ><span class="ta-sp">3</span>
+                </div>
+                <div class="ta-box backend-a">
+                  <span class="ta-nr">TA3.6</span
+                  ><span class="ta-name">Zod-Validierung &amp; Error Handling</span
+                  ><span class="ta-sp">2</span>
+                </div>
+                <div class="ta-box backend-a">
+                  <span class="ta-nr">TA3.7</span
+                  ><span class="ta-name">Tests Ausgaben/Abo/Spartipps</span
+                  ><span class="ta-sp">3</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- HA5: Frontend Anton -->
+            <div class="ha-group">
+              <div class="ha-box frontend-an">HA5<br />Auth, OCR &amp; Erfassung — Frontend</div>
+              <div class="ta-list">
+                <div class="ta-box frontend-an">
+                  <span class="ta-nr">TA4.2</span
+                  ><span class="ta-name">Login- &amp; Registrierungsseite</span
+                  ><span class="ta-sp">3</span>
+                </div>
+                <div class="ta-box frontend-an">
+                  <span class="ta-nr">TA4.3</span><span class="ta-name">Passwort-Reset-Seite</span
+                  ><span class="ta-sp">2</span>
+                </div>
+                <div class="ta-box frontend-an">
+                  <span class="ta-nr">TA4.4</span
+                  ><span class="ta-name">OCR-Upload &amp; Vorschau</span
+                  ><span class="ta-sp">5</span>
+                </div>
+                <div class="ta-box frontend-an">
+                  <span class="ta-nr">TA4.5</span
+                  ><span class="ta-name">Ausgabenerfassungs-Formular</span
+                  ><span class="ta-sp">3</span>
+                </div>
+                <div class="ta-box frontend-an">
+                  <span class="ta-nr">TA4.6</span><span class="ta-name">Abonnement-Verwaltung</span
+                  ><span class="ta-sp">5</span>
+                </div>
+                <div class="ta-box frontend-an">
+                  <span class="ta-nr">TA4.7</span
+                  ><span class="ta-name">Responsive Design &amp; Mobile</span
+                  ><span class="ta-sp">2</span>
+                </div>
+                <div class="ta-box frontend-an">
+                  <span class="ta-nr">TA4.8</span
+                  ><span class="ta-name">Tests Frontend Auth/OCR</span><span class="ta-sp">3</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- HA6: Frontend Marouane -->
+            <div class="ha-group">
+              <div class="ha-box frontend-m">HA6<br />Dashboard &amp; Spartipps — Frontend</div>
+              <div class="ta-list">
+                <div class="ta-box frontend-m">
+                  <span class="ta-nr">TA5.3</span
+                  ><span class="ta-name">Dashboard-Layout &amp; Navigation</span
+                  ><span class="ta-sp">5</span>
+                </div>
+                <div class="ta-box frontend-m">
+                  <span class="ta-nr">TA5.4</span
+                  ><span class="ta-name">Monatsübersicht &amp; Balkendiagramm</span
+                  ><span class="ta-sp">5</span>
+                </div>
+                <div class="ta-box frontend-m">
+                  <span class="ta-nr">TA5.5</span
+                  ><span class="ta-name">Auswertungsseite Spartipps</span
+                  ><span class="ta-sp">5</span>
+                </div>
+                <div class="ta-box frontend-m">
+                  <span class="ta-nr">TA5.6</span
+                  ><span class="ta-name">Ausgabenliste &amp; Pagination</span
+                  ><span class="ta-sp">3</span>
+                </div>
+                <div class="ta-box frontend-m">
+                  <span class="ta-nr">TA5.7</span
+                  ><span class="ta-name">Tests Dashboard/Spartipps</span
+                  ><span class="ta-sp">3</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- HA7: Abschluss -->
+            <div class="ha-group">
+              <div class="ha-box abschluss">HA7<br />Testing &amp; Dokumentation</div>
+              <div class="ta-list">
+                <div class="ta-box abschluss">
+                  <span class="ta-nr">TA6.1</span><span class="ta-name">Integrationstests</span
+                  ><span class="ta-sp">5</span>
+                </div>
+                <div class="ta-box abschluss">
+                  <span class="ta-nr">TA6.2</span
+                  ><span class="ta-name">Usability- &amp; Performance-Test</span
+                  ><span class="ta-sp">3</span>
+                </div>
+                <div class="ta-box abschluss">
+                  <span class="ta-nr">TA6.3</span
+                  ><span class="ta-name">Sprint-Retro-Protokolle</span><span class="ta-sp">2</span>
+                </div>
+                <div class="ta-box abschluss">
+                  <span class="ta-nr">TA6.4</span
+                  ><span class="ta-name">Sprint-Retro dokumentieren</span
+                  ><span class="ta-sp">2</span>
+                </div>
+                <div class="ta-box abschluss">
+                  <span class="ta-nr">TA6.5</span><span class="ta-name">Projektdokumentation</span
+                  ><span class="ta-sp">5</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
 
-    </div>
-
-    <div class="footer">
+      <div class="footer">
         <span>Projektstrukturplan — KlasseBon</span>
-        <span>React/TS/Tailwind · tRPC/Express.js · Better-Auth · Tesseract · Ollama · Prisma · PostgreSQL · Docker</span>
+        <span
+          >React/TS/Tailwind · tRPC/Express.js · Better-Auth · Tesseract · Ollama · Prisma ·
+          PostgreSQL · Docker</span
+        >
+      </div>
     </div>
-
-</div>
-</body>
+  </body>
 </html>

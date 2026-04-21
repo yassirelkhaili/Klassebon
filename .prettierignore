@@ -1,0 +1,14 @@
+node_modules
+dist
+coverage
+build
+.turbo
+*.min.js
+package-lock.json
+packages/backend/src/generated
+packages/backend/tessdata
+packages/backend/uploads
+**/uploads
+
+# Ignore Docs folder
+docs/

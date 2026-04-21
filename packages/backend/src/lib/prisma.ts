@@ -11,10 +11,6 @@ if (!connectionString) {
 const pool = new pg.Pool({ connectionString });
 const adapter = new PrismaPg(pool);
 
-/**
- * Prisma 7 client with PostgreSQL adapter (TA2.2).
- * Use this for app data; Better Auth uses the same DB via prismaAdapter.
- */
 export const prisma = new PrismaClient({ adapter });
 
 export async function disconnectPrisma() {

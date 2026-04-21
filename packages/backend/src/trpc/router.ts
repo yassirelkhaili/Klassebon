@@ -1,9 +1,7 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "./trpc.js";
+import { receiptRouter } from "./routers/receipt.js";
 
-/**
- * Root tRPC router (TA2.1) — extend with your domain procedures.
- */
 export const appRouter = router({
   health: publicProcedure.query(() => ({
     ok: true as const,
@@ -11,15 +9,15 @@ export const appRouter = router({
     trpc: true as const,
   })),
 
-  /** Example protected route — returns current user from Better Auth session */
   me: protectedProcedure.query(({ ctx }) => ({
     user: ctx.user,
   })),
 
-  /** Example public route with input validation */
   hello: publicProcedure.input(z.object({ name: z.string().optional() })).query(({ input }) => ({
     greeting: `Hello, ${input.name ?? "world"}!`,
   })),
+
+  receipt: receiptRouter,
 });
 
 export type AppRouter = typeof appRouter;

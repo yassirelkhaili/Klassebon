@@ -83,13 +83,13 @@ npm run dev:frontend
 
 ## URLs
 
-| Service  | URL                       | Description                |
-|----------|---------------------------|----------------------------|
-| Frontend | http://localhost:5173     | Vite dev server            |
-| Backend  | http://localhost:3000     | Express API                |
-| Health   | http://localhost:3000/api/health | REST health check   |
-| Auth     | http://localhost:3000/api/auth/* | Better Auth endpoints |
-| tRPC     | http://localhost:3000/api/trpc   | tRPC procedures      |
+| Service  | URL                               | Description           |
+| -------- | --------------------------------- | --------------------- |
+| Frontend | http://localhost:5173             | Vite dev server       |
+| Backend  | http://localhost:3000             | Express API           |
+| Health   | http://localhost:3000/api/health  | REST health check     |
+| Auth     | http://localhost:3000/api/auth/\* | Better Auth endpoints |
+| tRPC     | http://localhost:3000/api/trpc    | tRPC procedures       |
 
 The frontend proxies `/api` to the backend, so you can call `/api/...` from the frontend origin.
 
@@ -107,6 +107,20 @@ klassebon/
 ├── package.json
 └── README.md
 ```
+
+---
+
+## Scripts
+
+| Command                                  | Description                     |
+| ---------------------------------------- | ------------------------------- |
+| `npm run dev`                            | Start frontend and backend      |
+| `npm run dev:frontend`                   | Start frontend only (port 5173) |
+| `npm run dev:backend`                    | Start backend only (port 3000)  |
+| `npm run build`                          | Build all packages              |
+| `npm run db:push --workspace=backend`    | Push Prisma schema to DB        |
+| `npm run db:migrate --workspace=backend` | Run Prisma migrations           |
+| `npm run db:studio --workspace=backend`  | Open Prisma Studio              |
 
 ---
 
