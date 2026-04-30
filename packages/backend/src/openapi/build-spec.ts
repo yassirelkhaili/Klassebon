@@ -413,8 +413,8 @@ export function buildOpenApiSpec(): Record<string, unknown> {
                 example: {
                   email: "user@example.com",
                   password: "Sup3rSecret!",
-                  name: "Yassir Elkhaili",
-                  image: "https://example.com/avatar.png",
+                  name: "Yassir Elkhaili"
+                  //image: "https://example.com/avatar.png",
                 },
               },
             },

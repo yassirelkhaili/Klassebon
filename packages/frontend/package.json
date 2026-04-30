@@ -10,13 +10,14 @@
   },
   "dependencies": {
     "@klassebon/shared": "*",
+    "framer-motion": "^12.38.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.2.1",
     "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
+    "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react": "^4.3.3",
     "autoprefixer": "^10.4.27",
     "postcss": "^8.5.8",
