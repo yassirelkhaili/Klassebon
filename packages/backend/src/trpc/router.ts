@@ -3,6 +3,7 @@ import { publicProcedure, protectedProcedure, router } from "./trpc.js";
 import { ausgabenRouter } from "./routers/ausgaben.js";
 import { abonnementsRouter } from "./routers/abonnements.js";
 import { monatskostenRouter } from "./routers/monatskosten.js";
+import { spartippsRouter } from "./routers/spartipps.js";
 
 /**
  * Root tRPC router (TA2.1) — extend with your domain procedures.
@@ -27,6 +28,7 @@ export const appRouter = router({
 	ausgaben: ausgabenRouter,
 	abonnements: abonnementsRouter,
 	monatskosten: monatskostenRouter,
+	spartipps: spartippsRouter,
 });
 
 export type AppRouter = typeof appRouter;
