@@ -1,14 +1,8 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../trpc.js";
 import { KATEGORIEN } from "../kategorien.js";
+import { berechneMonatlichenBetrag } from "../../lib/berechnungen.js";
 
-function berechneMonatlichenBetrag(betrag: number, turnus: "WOECHENTLICH" | "MONATLICH" | "JAEHRLICH"): number {
-    switch (turnus) {
-        case "WOECHENTLICH": return betrag * (52 / 12);
-        case "MONATLICH":    return betrag;
-        case "JAEHRLICH":    return betrag / 12;
-    }
-}
 
 export const dashboardRouter = router({
     /**

@@ -2,16 +2,9 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure, router } from "../trpc.js";
 import { ollama, OLLAMA_MODEL } from "../../lib/ollama.js";
+import { berechneMonatlichenBetrag } from "../../lib/berechnungen.js";
 
-function berechneMonatlichenBetrag(betrag: number, turnus: "WOECHENTLICH" | "MONATLICH" | "JAEHRLICH"): number {
-    switch (turnus) {
-        case "WOECHENTLICH": return betrag * (52 / 12);
-        case "MONATLICH":    return betrag;
-        case "JAEHRLICH":    return betrag / 12;
-    }
-}
-
-function bauePrompt(
+export function bauePrompt(
     ausgabenSumme: number,
     abonnementsSumme: number,
     kategorien: { 

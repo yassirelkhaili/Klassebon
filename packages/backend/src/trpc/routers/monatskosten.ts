@@ -1,24 +1,7 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../trpc.js";
 import { KATEGORIEN } from "../kategorien.js";
-
-/**
- * Rechnet den Abo-Betrag auf einen monatlichen Betrag um.
- *
- * WOECHENTLICH: 52 Wochen / 12 Monate = ~4.33x pro Monat
- * MONATLICH:    direkt übernehmen
- * JAEHRLICH:    geteilt durch 12 Monate
- */
-function berechneMonatlichenBetrag(betrag: number, turnus: "WOECHENTLICH" | "MONATLICH" | "JAEHRLICH"): number {
-    switch (turnus) {
-        case "WOECHENTLICH":
-            return betrag * (52 / 12);
-        case "MONATLICH":
-            return betrag;
-        case "JAEHRLICH":
-            return betrag / 12;
-    }
-}
+import { berechneMonatlichenBetrag } from "../../lib/berechnungen.js";
 
 export const monatskostenRouter = router({
     /**
