@@ -1,88 +1,75 @@
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import type { HealthResponse } from "@klassebon/shared";
-import type { View, ModalType, Expense, Abonement } from "./types";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
+
+import { Layout } from "./components/shared/Layout";
+import { Dashboard } from "./pages/Dashboard";
+import { Expenses } from "./pages/Expenses";
+import { Subscriptions } from "./pages/Subscriptions";
+import { AiTips } from "./pages/AiTips";
 import { Login, Register, ResetPassword, ForgotPassword } from "./pages/Auth";
 
-function getViewFromPath(pathname: string): View {
-  switch (pathname) {
-    case "/register":
-      return "register";
-    case "/forgot-password":
-      return "forgot-password";
-    case "/reset-password":
-      return "reset-password";
-    default:
-      return "login";
-  }
+function AnimatedRoutes() {
+  const location = useLocation();
+
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={location.pathname}
+        initial={{ opacity: 0, x: 10 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: -10 }}
+        transition={{ duration: 0.2 }}
+      >
+        <Routes location={location}>
+          <Route path="/" element={<Navigate to="/login" replace />} />
+
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+
+          <Route
+            path="/dashboard"
+            element={
+              <Layout>
+                <Dashboard />
+              </Layout>
+            }
+          />
+          <Route
+            path="/expenses"
+            element={
+              <Layout>
+                <Expenses />
+              </Layout>
+            }
+          />
+          <Route
+            path="/subscriptions"
+            element={
+              <Layout>
+                <Subscriptions />
+              </Layout>
+            }
+          />
+          <Route
+            path="/ai-tips"
+            element={
+              <Layout>
+                <AiTips />
+              </Layout>
+            }
+          />
+        </Routes>
+      </motion.div>
+    </AnimatePresence>
+  );
 }
 
 export default function App() {
-  const [health, setHealth] = useState<HealthResponse | null>(null);
-  const [currentView, setCurrentView] = useState<View>(() =>
-    getViewFromPath(window.location.pathname)
-  );
-
-  const handleNavigate = (view: View) => {
-    setCurrentView(view);
-
-    const pathMap: Partial<Record<View, string>> = {
-      login: "/login",
-      register: "/register",
-      "forgot-password": "/forgot-password",
-      "reset-password": "/reset-password",
-    };
-
-    const nextPath = pathMap[view];
-    if (nextPath) {
-      window.history.pushState({}, "", nextPath);
-    }
-  };
-
-  useEffect(() => {
-    const onPopState = () => {
-      setCurrentView(getViewFromPath(window.location.pathname));
-    };
-
-    window.addEventListener("popstate", onPopState);
-    return () => window.removeEventListener("popstate", onPopState);
-  }, []);
-
-  useEffect(() => {
-    fetch("/api/health")
-      .then((r) => r.json())
-      .then(setHealth)
-      .catch(() => setHealth(null));
-  }, []);
-
-  const renderView = () => {
-    switch (currentView) {
-      case "login":
-        return <Login onNavigate={handleNavigate} />;
-      case "register":
-        return <Register onNavigate={handleNavigate} />;
-      case "forgot-password":
-        return <ForgotPassword onNavigate={handleNavigate} />;
-      case "reset-password":
-        return <ResetPassword onNavigate={handleNavigate} />;
-      default:
-        return <Login onNavigate={handleNavigate} />;
-    }
-  };
-
   return (
-    <main style={{ fontFamily: "system-ui", padding: "2rem" }}>
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentView}
-          initial={{ opacity: 0, x: 10 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -10 }}
-          transition={{ duration: 0.2 }}
-        >
-          {renderView()}
-        </motion.div>
-      </AnimatePresence>
-    </main>
+    <BrowserRouter>
+      <AnimatedRoutes />
+    </BrowserRouter>
   );
 }
