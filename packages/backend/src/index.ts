@@ -1,6 +1,14 @@
 import "dotenv/config";
+import express from "express";
+import { toNodeHandler } from "better-auth/node";
 import { api_prefix } from "@klassebon/shared";
+import type { HealthResponse } from "@klassebon/shared";
+import * as trpcExpress from "@trpc/server/adapters/express";
+
 import { createApp } from "./app.js";
+import { auth } from "./lib/auth.js";
+import { appRouter } from "./trpc/router.js";
+import { createContext } from "./trpc/context.js";
 
 const isDev = process.env.NODE_ENV !== "production";
 const api_port = Number(process.env.PORT) || 3000;
@@ -25,19 +33,19 @@ const api_port = Number(process.env.PORT) || 3000;
   });*/
 const app = createApp();
 
-app.all(`${API_PREFIX}/auth/*`, toNodeHandler(auth));
+app.all(`${api_prefix}/auth/*`, toNodeHandler(auth));
 
 app.use(express.json());
 
 // REST health (existing)
-app.get(`${API_PREFIX}/health`, (_req, res) => {
+app.get(`${api_prefix}/health`, (_req, res) => {
   const body: HealthResponse = { ok: true, service: "backend" };
   res.json(body);
 });
 
 // TA2.1 tRPC on /api/trpc
 app.use(
-  `${API_PREFIX}/trpc`,
+  `${api_prefix}/trpc`,
   trpcExpress.createExpressMiddleware({
     router: appRouter,
     createContext,
