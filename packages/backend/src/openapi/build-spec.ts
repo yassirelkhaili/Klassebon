@@ -150,6 +150,9 @@ export function buildOpenApiSpec(): Record<string, unknown> {
               format: "email",
               minLength: 3,
               maxLength: 254,
+
+
+              
               description:
                 "Email for the new account. Must be unique (the call fails with 422 otherwise). " +
                 "Used as the login identifier and as the recipient for password-reset emails.",

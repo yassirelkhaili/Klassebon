@@ -95,6 +95,24 @@ function validateResetPassword(form: ResetPasswordForm): ResetPasswordErrors {
 
    return errors;
 }
+//forgot password form is just email, but we can reuse the email validation logic from login form
+type ForgotPasswordForm = {
+   email: string;
+};
+
+type ForgotPasswordErrors = Partial<Record<keyof ForgotPasswordForm, string>>;
+
+function validateForgotPassword(form: ForgotPasswordForm): ForgotPasswordErrors {
+   const errors: ForgotPasswordErrors = {};
+
+   if (!form.email.trim()) {
+      errors.email = "Email is required";
+   } else if (!emailRegex.test(form.email.trim())) {
+      errors.email = "Enter a valid email address";
+   }
+
+   return errors;
+}
 
 export function Login({ onNavigate }: AuthProps) {
    const [form, setForm] = useState<LoginForm>({
@@ -330,7 +348,7 @@ export function Login({ onNavigate }: AuthProps) {
 
                         <button
                            type="button"
-                           //onClick={() => onNavigate("forgot-password")}
+                           onClick={() => onNavigate("forgot-password")}
                            className="text-xs font-label font-semibold text-primary hover:text-primary-fixed transition-colors tracking-wide"
                         >
                            Forgot Password?
@@ -927,6 +945,166 @@ export function ResetPassword({ onNavigate }: AuthProps) {
                © 2024 KlasseBon. Secured by The Private Ledger.
             </p>
          </footer>
+      </div>
+   );
+}
+
+export function ForgotPassword({ onNavigate }: AuthProps) {
+   const [form, setForm] = useState<ForgotPasswordForm>({ email: "" });
+   const [touched, setTouched] = useState<Record<keyof ForgotPasswordForm, boolean>>({
+      email: false,
+   });
+   const [errors, setErrors] = useState<ForgotPasswordErrors>({});
+   const [serverError, setServerError] = useState("");
+   const [successMessage, setSuccessMessage] = useState("");
+   const [isSubmitting, setIsSubmitting] = useState(false);
+
+   const currentErrors = useMemo(() => validateForgotPassword(form), [form]);
+   const isFormValid = Object.keys(currentErrors).length === 0;
+
+   const updateField =
+      (field: keyof ForgotPasswordForm) =>
+         (e: React.ChangeEvent<HTMLInputElement>) => {
+            const value = e.target.value;
+
+            const nextForm = {
+               ...form,
+               [field]: value,
+            };
+
+            setForm(nextForm);
+            setErrors(validateForgotPassword(nextForm));
+            setServerError("");
+            setSuccessMessage("");
+         };
+
+   const handleBlur = (field: keyof ForgotPasswordForm) => {
+      setTouched((prev) => ({
+         ...prev,
+         [field]: true,
+      }));
+
+      setErrors(validateForgotPassword(form));
+   };
+
+   const inputClass = (field: keyof ForgotPasswordForm) =>
+      [
+         "w-full bg-surface-container rounded-xl py-4 px-5 text-on-surface placeholder:text-on-surface-variant/40 transition-all duration-200 outline-none",
+         "focus:ring-1 focus:bg-surface-bright",
+         touched[field] && errors[field]
+            ? "border border-red-500 focus:ring-red-500"
+            : "border border-transparent focus:ring-primary",
+      ].join(" ");
+
+   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+
+      const validationErrors = validateForgotPassword(form);
+      setErrors(validationErrors);
+      setTouched({ email: true });
+      setServerError("");
+      setSuccessMessage("");
+
+      if (Object.keys(validationErrors).length > 0) {
+         return;
+      }
+
+      try {
+         setIsSubmitting(true);
+
+         const res = await fetch(`${api_prefix}/auth/request-password-reset`, {
+            method: "POST",
+            headers: {
+               "Content-Type": "application/json",
+            },
+            credentials: "include",
+            body: JSON.stringify({
+               email: form.email.trim(),
+               redirectTo: `${window.location.origin}/reset-password`,
+            }),
+         });
+
+         const raw = await res.clone().text();
+
+         if (!res.ok) {
+            const errorData = await res.json().catch(() => null);
+            throw new Error(errorData?.error || raw || "Failed to request password reset");
+         }
+
+         setSuccessMessage("If an account exists for this email, a reset link has been sent.");
+      } catch (error) {
+         setServerError(
+            error instanceof Error ? error.message : "An unknown error occurred"
+         );
+      } finally {
+         setIsSubmitting(false);
+      }
+   };
+
+   return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-b from-black to-surface-container-low">
+         <main className="w-full max-w-md">
+            <div className="bg-surface-container-low p-8 rounded-2xl bloom-shadow">
+               <h1 className="font-headline text-3xl font-bold tracking-tight text-on-surface mb-2">
+                  Forgot Password
+               </h1>
+               <p className="text-on-surface-variant text-sm mb-8">
+                  Enter your email address and we’ll send you a reset link.
+               </p>
+
+               <form className="space-y-6" onSubmit={handleSubmit} noValidate>
+                  <div className="space-y-2">
+                     <label
+                        htmlFor="forgot-email"
+                        className="block text-xs font-label font-medium text-on-surface-variant uppercase tracking-widest ml-1"
+                     >
+                        Email Address
+                     </label>
+                     <input
+                        id="forgot-email"
+                        name="email"
+                        type="email"
+                        autoComplete="email"
+                        value={form.email}
+                        onChange={updateField("email")}
+                        onBlur={() => handleBlur("email")}
+                        className={inputClass("email")}
+                        placeholder="name@example.com"
+                     />
+                     {touched.email && errors.email && (
+                        <p className="px-1 text-sm text-red-400">{errors.email}</p>
+                     )}
+                  </div>
+
+                  {serverError && (
+                     <p className="text-sm text-red-400 px-1">{serverError}</p>
+                  )}
+
+                  {successMessage && (
+                     <p className="text-sm text-green-400 px-1">{successMessage}</p>
+                  )}
+
+                  <button
+                     className="w-full bg-gradient-to-br from-primary-container to-primary py-4 rounded-xl text-on-primary font-headline font-bold text-base tracking-wide disabled:opacity-60 disabled:cursor-not-allowed"
+                     type="submit"
+                     disabled={!isFormValid || isSubmitting}
+                  >
+                     {isSubmitting ? "Sending..." : "Send Reset Link"}
+                  </button>
+               </form>
+
+               <div className="mt-8 pt-6 border-t border-outline-variant/10 flex justify-center">
+                  <button
+                     type="button"
+                     onClick={() => onNavigate("login")}
+                     className="flex items-center gap-2 text-on-surface-variant hover:text-on-surface transition-colors text-xs font-label uppercase tracking-widest group"
+                  >
+                     <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                     Back to Sign In
+                  </button>
+               </div>
+            </div>
+         </main>
       </div>
    );
 }

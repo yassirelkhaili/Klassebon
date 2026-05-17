@@ -1,4 +1,4 @@
-export type View = 'login' | 'register' | 'forgot-password' | 'dashboard' | 'expenses' | 'abonements' | 'ai-tips';
+export type View = 'login' | 'register' | 'reset-password' | 'forgot-password' | 'dashboard' | 'expenses' | 'abonements' | 'ai-tips';
 
 export type ModalType =
    | 'add-expense'

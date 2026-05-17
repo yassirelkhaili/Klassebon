@@ -2,24 +2,51 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { HealthResponse } from "@klassebon/shared";
 import type { View, ModalType, Expense, Abonement } from "./types";
-import { Login, Register, ResetPassword } from "./pages/Auth";
+import { Login, Register, ResetPassword, ForgotPassword } from "./pages/Auth";
+
+function getViewFromPath(pathname: string): View {
+  switch (pathname) {
+    case "/register":
+      return "register";
+    case "/forgot-password":
+      return "forgot-password";
+    case "/reset-password":
+      return "reset-password";
+    default:
+      return "login";
+  }
+}
 
 export default function App() {
   const [health, setHealth] = useState<HealthResponse | null>(null);
-  const [currentView, setCurrentView] = useState<View>('login');
-  const isAuthView = ['login', 'register', 'forgot-password'].includes(currentView);
+  const [currentView, setCurrentView] = useState<View>(() =>
+    getViewFromPath(window.location.pathname)
+  );
 
   const handleNavigate = (view: View) => {
     setCurrentView(view);
-  }
 
-  const closeModal = () => {
-    // Logic to close modal
-  }
+    const pathMap: Partial<Record<View, string>> = {
+      login: "/login",
+      register: "/register",
+      "forgot-password": "/forgot-password",
+      "reset-password": "/reset-password",
+    };
 
-  const handleLogout = () => {
-    //setCurrentView('logout-confirm');
-  }
+    const nextPath = pathMap[view];
+    if (nextPath) {
+      window.history.pushState({}, "", nextPath);
+    }
+  };
+
+  useEffect(() => {
+    const onPopState = () => {
+      setCurrentView(getViewFromPath(window.location.pathname));
+    };
+
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
 
   useEffect(() => {
     fetch("/api/health")
@@ -30,14 +57,21 @@ export default function App() {
 
   const renderView = () => {
     switch (currentView) {
-      case 'login': return <Login onNavigate={handleNavigate} />;
-      case 'register': return <Register onNavigate={handleNavigate} />;
-      case 'forgot-password': return <ResetPassword onNavigate={handleNavigate} />;
-    };
-  }
+      case "login":
+        return <Login onNavigate={handleNavigate} />;
+      case "register":
+        return <Register onNavigate={handleNavigate} />;
+      case "forgot-password":
+        return <ForgotPassword onNavigate={handleNavigate} />;
+      case "reset-password":
+        return <ResetPassword onNavigate={handleNavigate} />;
+      default:
+        return <Login onNavigate={handleNavigate} />;
+    }
+  };
+
   return (
     <main style={{ fontFamily: "system-ui", padding: "2rem" }}>
-
       <AnimatePresence mode="wait">
         <motion.div
           key={currentView}
@@ -52,7 +86,3 @@ export default function App() {
     </main>
   );
 }
-
-/*<h1 className="text-red-500">Klassebon</h1>
-      <p>Vite frontend + workspace shared types.</p>
-      {health && <pre style={{ background: "#f4f4f4", padding: "1rem" }}>{JSON.stringify(health, null, 2)}</pre>}*/
