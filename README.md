@@ -57,7 +57,26 @@ PORT=3000
 npm run db:push --workspace=backend
 ```
 
-### 5. Run the project
+### 5. Ollama (Spartipp-Generierung)
+
+Ollama wird für die lokale KI-Spartipp-Generierung benötigt.
+
+1. [Ollama herunterladen](https://ollama.com/download) und installieren
+2. Modell laden:
+```bash
+ollama pull llama3.2
+```
+3. Ollama läuft danach automatisch im Hintergrund auf `http://localhost:11434`
+
+Optional in `.env` konfigurieren:
+```env
+OLLAMA_HOST="http://localhost:11434"
+OLLAMA_MODEL="llama3.2"
+```
+
+> Ohne Ollama funktioniert die gesamte App normal — nur die Spartipp-Generierung gibt einen Fehler zurück.
+
+### 6. Run the project
 
 **Option A — Both frontend and backend together:**
 
@@ -112,6 +131,7 @@ klassebon/
 
 ## Scripts
 
+<<<<<<< HEAD
 | Command                                  | Description                     |
 | ---------------------------------------- | ------------------------------- |
 | `npm run dev`                            | Start frontend and backend      |
@@ -122,6 +142,19 @@ klassebon/
 | `npm run db:migrate --workspace=backend` | Run Prisma migrations           |
 | `npm run db:studio --workspace=backend`  | Open Prisma Studio              |
 
+| Command               | Description                          |
+|-----------------------|--------------------------------------|
+| `npm run dev`         | Start frontend and backend           |
+| `npm run dev:frontend`| Start frontend only (port 5173)      |
+| `npm run dev:backend` | Start backend only (port 3000)       |
+| `npm run build`       | Build all packages                   |
+| `npm run db:push --workspace=backend`    | Push Prisma schema to DB |
+| `npm run db:migrate --workspace=backend` | Run Prisma migrations   |
+| `npm run db:studio --workspace=backend`  | Open Prisma Studio      |
+| `npm run test --workspace=backend`       | Run backend unit tests  |
+| `npm run test:watch --workspace=backend` | Tests im Watch-Modus    |
+>>>>>>> Andrzej
+
 ---
 
 ## Tech stack
@@ -131,6 +164,34 @@ klassebon/
 - **Auth:** Better Auth (session-based, PostgreSQL)
 - **Database:** PostgreSQL
 - **OCR:** Tesseract (planned)
-- **LLM:** Ollama (planned)
+- **LLM:** Ollama (llama3.2, lokal)
+- **Tests:** Vitest
+
+---
+
+## tRPC Prozeduren (Backend)
+
+Alle Prozeduren benötigen `Authorization: Bearer <token>` (außer `health` und `hello`).
+
+| Prozedur | Methode | Beschreibung |
+|---|---|---|
+| `health` | GET | Health-Check |
+| `me` | GET | Eingeloggter User |
+| `ausgaben.list` | GET | Alle Ausgaben (optional: `?kategorie=Streaming`) |
+| `ausgaben.getById` | GET | Einzelne Ausgabe |
+| `ausgaben.create` | POST | Neue Ausgabe anlegen |
+| `ausgaben.update` | POST | Ausgabe bearbeiten |
+| `ausgaben.delete` | POST | Ausgabe löschen |
+| `abonnements.list` | GET | Alle Abos (optional: `?kategorie=`, `?nurAktive=true`) |
+| `abonnements.getById` | GET | Einzelnes Abo |
+| `abonnements.create` | POST | Neues Abo anlegen |
+| `abonnements.update` | POST | Abo bearbeiten / deaktivieren |
+| `abonnements.delete` | POST | Abo löschen |
+| `monatskosten.berechne` | GET | Gesamtkosten eines Monats |
+| `monatskosten.nachKategorie` | GET | Kosten pro Kategorie (Balkendiagramm) |
+| `dashboard.uebersicht` | GET | Alle Dashboard-Daten in einem Call |
+| `spartipps.generiere` | GET | 3 Spartipps via Ollama |
+
+**Vordefinierte Kategorien:** `Streaming` · `Lebensmittel` · `Versicherung` · `Transport` · `Sonstiges`
 
 ---

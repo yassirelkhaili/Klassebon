@@ -4,12 +4,21 @@
 */
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+    provider = "prisma-client"
+    output   = "../src/generated/prisma"
 }
 
 datasource db {
-  provider = "postgresql"
+    provider = "postgresql"
+}
+
+//Beantwortet: in welchem Rhythmus das Abo bezahlt wird (MONATLICH/JAEHRLICH/WOECHENTLICH)
+enum Turnus {
+    WOECHENTLICH
+    MONATLICH
+    JAEHRLICH
+
+    @@map("turnus")
 }
 
 // ────────────────────────────────────────────────────
@@ -33,64 +42,99 @@ enum Category {
 // ────────────────────────────────────────────────────
 
 model User {
-  id            String    @id
+  id            String        @id
   name          String
   email         String
-  emailVerified Boolean   @default(false)
+  emailVerified Boolean       @default(false)
   image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
   sessions      Session[]
   accounts      Account[]
   receipts      Receipt[]
+  ausgaben      Ausgabe[]
+  abonnements   Abonnement[]
 
   @@unique([email])
   @@map("user")
 }
 
-model Session {
-  id        String   @id
-  expiresAt DateTime
-  token     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  ipAddress String?
-  userAgent String?
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+model Ausgabe {
+    id           String   @id @default(cuid())
+    titel        String
+    betrag       Float
+    datum        DateTime
+    kategorie    String?
+    beschreibung String?
+    userId       String
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
 
-  @@unique([token])
-  @@map("session")
+    @@map("ausgabe")
+}
+
+model Abonnement {
+    id                  String   @id @default(cuid())
+    name                String
+    betrag              Float
+    turnus              Turnus
+    startDatum          DateTime
+    naechsteFaelligkeit DateTime
+    kategorie           String?
+    beschreibung        String?
+    aktiv               Boolean  @default(true)
+    userId              String
+    user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    createdAt           DateTime @default(now())
+    updatedAt           DateTime @updatedAt
+
+    @@map("abonnement")
+}
+
+model Session {
+    id        String   @id
+    expiresAt DateTime
+    token     String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    ipAddress String?
+    userAgent String?
+    userId    String
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([token])
+    @@map("session")
 }
 
 model Account {
-  id                    String    @id
-  accountId             String
-  providerId            String
-  userId                String
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  accessToken           String?
-  refreshToken          String?
-  idToken               String?
-  accessTokenExpiresAt  DateTime?
-  refreshTokenExpiresAt DateTime?
-  scope                 String?
-  password              String?
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
+    id                    String    @id
+    accountId             String
+    providerId            String
+    userId                String
+    user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+    accessToken           String?
+    refreshToken          String?
+    idToken               String?
+    accessTokenExpiresAt  DateTime?
+    refreshTokenExpiresAt DateTime?
+    scope                 String?
+    password              String?
+    createdAt             DateTime  @default(now())
+    updatedAt             DateTime  @updatedAt
 
-  @@map("account")
+    @@map("account")
 }
 
 model Verification {
-  id         String    @id
-  identifier String
-  value      String
-  expiresAt  DateTime
-  createdAt  DateTime? @default(now())
-  updatedAt  DateTime? @updatedAt
+    id         String    @id
+    identifier String
+    value      String
+    expiresAt  DateTime
+    createdAt  DateTime? @default(now())
+    updatedAt  DateTime? @updatedAt
 
-  @@map("verification")
+    @@map("verification")
 }
 
 // ────────────────────────────────────────────────────
