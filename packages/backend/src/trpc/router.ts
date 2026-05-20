@@ -29,15 +29,7 @@ export const appRouter = router({
 	monatskosten: monatskostenRouter,
 	spartipps: spartippsRouter,
 	dashboard: dashboardRouter,
-  me: protectedProcedure.query(({ ctx }) => ({
-    user: ctx.user,
-  })),
-
-  hello: publicProcedure.input(z.object({ name: z.string().optional() })).query(({ input }) => ({
-    greeting: `Hello, ${input.name ?? "world"}!`,
-  })),
-
-  receipt: receiptRouter,
+	receipt: receiptRouter,
 });
 
 export type AppRouter = typeof appRouter;

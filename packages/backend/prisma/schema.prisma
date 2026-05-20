@@ -53,6 +53,7 @@ model User {
     accounts      Account[]
     ausgaben      Ausgabe[]
     abonnements   Abonnement[]
+    receipts      Receipt[]
 
     @@unique([email])
     @@map("user")
@@ -89,19 +90,6 @@ model Abonnement {
     updatedAt           DateTime @updatedAt
 
     @@map("abonnement")
-  id            String    @id
-  name          String
-  email         String
-  emailVerified Boolean   @default(false)
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  sessions      Session[]
-  accounts      Account[]
-  receipts      Receipt[]
-
-  @@unique([email])
-  @@map("user")
 }
 
 model Session {
