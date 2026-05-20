@@ -7,6 +7,12 @@ export const api_prefix = "/api";
 
 /** GET /api/health JSON body (matches backend `HealthResponse`). */
 export interface HealthResponse {
-  ok: boolean;
-  service: string;
+  	ok: boolean;
+  	service: string;
+}
+
+/** Example shared DTO – extend as your app grows */
+export interface UserPreview {
+  	id: string;
+  	email: string;
 }

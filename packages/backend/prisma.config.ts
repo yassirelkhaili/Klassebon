@@ -11,11 +11,11 @@ const backendRoot = path.resolve(__dirname);
 dotenv.config({ path: path.join(backendRoot, ".env") });
 
 export default defineConfig({
-  schema: "prisma/schema.prisma",
-  migrations: {
-    path: "prisma/migrations",
-  },
-  datasource: {
-    url: process.env["DATABASE_URL"],
-  },
+	schema: "prisma/schema.prisma",
+	migrations: {
+		path: "prisma/migrations",
+	},
+	datasource: {
+		url: process.env["DATABASE_URL"],
+	},
 });

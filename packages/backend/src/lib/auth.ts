@@ -5,11 +5,26 @@ import { isSmtpConfigured, sendPasswordResetEmail } from "../services/mailServic
 import { prisma } from "./prisma.js";
 
 if (!process.env.BETTER_AUTH_SECRET || process.env.BETTER_AUTH_SECRET.length < 32) {
+	console.warn(
+		"[auth] BETTER_AUTH_SECRET must be set and at least 32 characters (openssl rand -base64 32)"
+	);
   console.warn("[auth] BETTER_AUTH_SECRET must be set and at least 32 characters (openssl rand -base64 32)");
 }
 
 // Password reset: POST …/auth/request-password-reset, then …/auth/reset-password (Better Auth).
 export const auth = betterAuth({
+	database: prismaAdapter(prisma, {
+		provider: "postgresql",
+	}),
+	emailAndPassword: {
+		enabled: true,
+	},
+	secret: process.env.BETTER_AUTH_SECRET ?? "dev-only-secret-min-32-chars!!",
+	baseURL: process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
+	trustedOrigins: [
+		process.env.FRONTEND_ORIGIN ?? "http://localhost:5173",
+		"http://localhost:3000",
+	],
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
