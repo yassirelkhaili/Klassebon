@@ -1,5 +1,7 @@
-// Prisma + PostgreSQL (TA2.2)
-// Better Auth core models (TA2.3) — see https://www.prisma.io/docs/guides/betterauth-nextjs
+/** Prisma + PostgreSQL
+* @author Yassir Elkhaili
+* @see {@link https://www.prisma.io/docs/guides/betterauth-nextjs}
+*/
 
 generator client {
     provider = "prisma-client"
@@ -18,6 +20,26 @@ enum Turnus {
 
     @@map("turnus")
 }
+
+// ────────────────────────────────────────────────────
+// Enumerations
+// ────────────────────────────────────────────────────
+
+enum Category {
+  STREAMING
+  LEBENSMITTEL
+  VERSICHERUNG
+  TRANSPORT
+  WOHNUNG
+  GESUNDHEIT
+  FREIZEIT
+  BILDUNG
+  SONSTIGES
+}
+
+// ────────────────────────────────────────────────────
+// Better Auth models
+// ────────────────────────────────────────────────────
 
 model User {
     id            String       @id
@@ -67,6 +89,19 @@ model Abonnement {
     updatedAt           DateTime @updatedAt
 
     @@map("abonnement")
+  id            String    @id
+  name          String
+  email         String
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+  receipts      Receipt[]
+
+  @@unique([email])
+  @@map("user")
 }
 
 model Session {
@@ -112,4 +147,21 @@ model Verification {
     updatedAt  DateTime? @updatedAt
 
     @@map("verification")
+}
+
+// ────────────────────────────────────────────────────
+// OCR
+// ────────────────────────────────────────────────────
+
+model Receipt {
+  id                String    @id @default(cuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  imagePath         String
+  ocrText           String?
+  extractedAmount   Decimal?
+  extractedCategory Category?
+  createdAt         DateTime  @default(now())
+
+  @@map("receipt")
 }

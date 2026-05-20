@@ -5,10 +5,8 @@ import { abonnementsRouter } from "./routers/abonnements.js";
 import { monatskostenRouter } from "./routers/monatskosten.js";
 import { spartippsRouter } from "./routers/spartipps.js";
 import { dashboardRouter } from "./routers/dashboard.js";
+import { receiptRouter } from "./routers/receipt.js";
 
-/**
- * Root tRPC router (TA2.1) — extend with your domain procedures.
- */
 export const appRouter = router({
 	health: publicProcedure.query(() => ({
 		ok: true as const,
@@ -31,6 +29,15 @@ export const appRouter = router({
 	monatskosten: monatskostenRouter,
 	spartipps: spartippsRouter,
 	dashboard: dashboardRouter,
+  me: protectedProcedure.query(({ ctx }) => ({
+    user: ctx.user,
+  })),
+
+  hello: publicProcedure.input(z.object({ name: z.string().optional() })).query(({ input }) => ({
+    greeting: `Hello, ${input.name ?? "world"}!`,
+  })),
+
+  receipt: receiptRouter,
 });
 
 export type AppRouter = typeof appRouter;
