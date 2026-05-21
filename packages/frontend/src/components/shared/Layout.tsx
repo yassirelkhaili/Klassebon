@@ -4,7 +4,7 @@ import { Home, ListChecks, Wallet, Sparkles, Menu } from "lucide-react";
 const navItems = [
   { label: "Dashboard", path: "/dashboard", icon: Home },
   { label: "Expenses", path: "/expenses", icon: Wallet },
-  { label: "Subscriptions", path: "/subscriptions", icon: ListChecks },
+  { label: "Abonements", path: "/abonements", icon: ListChecks },
   { label: "AI Tips", path: "/ai-tips", icon: Sparkles },
 ];
 
@@ -13,11 +13,10 @@ function NavItem({ label, path, icon: Icon }: { label: string; path: string; ico
     <NavLink
       to={path}
       className={({ isActive }) =>
-        `flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-colors duration-200 ${
-          isActive ? "bg-slate-800 text-emerald-300 shadow-sm shadow-emerald-500/20" : "text-slate-300 hover:bg-slate-900 hover:text-white"
+        `flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-colors duration-200 ${isActive ? "bg-slate-800 text-emerald-300 shadow-sm shadow-emerald-500/20" : "text-slate-300 hover:bg-slate-900 hover:text-white"
         }`
       }
-      >
+    >
       <Icon className="h-5 w-5" />
       {label}
     </NavLink>
