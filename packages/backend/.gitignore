@@ -3,3 +3,7 @@ node_modules
 .env
 
 /src/generated/prisma
+
+# Uploaded receipt images (multer writes next to src/utils or dist/utils)
+/src/uploads/
+/dist/uploads/
