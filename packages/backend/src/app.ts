@@ -1,4 +1,5 @@
 import express, { type Express } from "express";
+import cors from "cors";
 import swaggerUi from "swagger-ui-express";
 import * as trpcExpress from "@trpc/server/adapters/express";
 import { toNodeHandler } from "better-auth/node";
@@ -13,6 +14,15 @@ import { createReceiptUploadMulter, handleReceiptUploadRequest } from "./http/re
 function mountBetterAuthBeforeJson(expressApp: Express): void {
   // Must run before express.json() so Better Auth can parse its own request bodies.
   expressApp.all(`${api_prefix}/auth/*`, toNodeHandler(auth));
+}
+
+function useCors(expressApp: Express): void {
+  expressApp.use(cors({
+    origin: process.env.NODE_ENV === "production" 
+      ? process.env.FRONTEND_URL || "https://klassebon.app"
+      : ["http://localhost:5173", "http://localhost:3000"],
+    credentials: true,
+  }));
 }
 
 function useJsonBodyParser(expressApp: Express): void {
@@ -50,6 +60,9 @@ export function createApp(): Express {
   const expressInstance = express();
   const openApiDocument = buildOpenApiSpec();
 
+  // CORS must be applied first, before any routes
+  useCors(expressInstance);
+  
   mountBetterAuthBeforeJson(expressInstance);
   useJsonBodyParser(expressInstance);
   mountOpenApiAndDocs(expressInstance, openApiDocument);
