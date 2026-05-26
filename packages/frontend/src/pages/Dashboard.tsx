@@ -3,12 +3,7 @@
  *
  * PATTERN: createTRPCProxyClient (NOT React Query hooks).
  * All API calls are imperative awaits inside useEffect or event handlers.
- *
- * FIX #2: Two independent loading flags (loadingUebersicht, loadingAbos) so
- *         each parallel call sets its own flag in .finally().
- * FIX #6: SVG donut uses circumference 282.7 (consistent with original design).
- * FIX #9: Month picker uses ChevronLeft / ChevronRight arrow buttons.
- * FIX #10: All data access goes through dashboardData?.field with optional chaining.
+
  */
 
 import React, { useState, useEffect } from "react";
@@ -105,17 +100,17 @@ export default function Dashboard() {
   const [monat, setMonat] = useState(now.getMonth() + 1);
   const [jahr, setJahr]   = useState(now.getFullYear());
 
-  // FIX #2 — independent loading/error states for each parallel call
+  // independent loading/error states for each parallel call
   const [loadingUebersicht, setLoadingUebersicht] = useState(true);
   const [loadingAbos,       setLoadingAbos]       = useState(true);
   const [errorUebersicht,   setErrorUebersicht]   = useState<string | null>(null);
   const [errorAbos,         setErrorAbos]         = useState<string | null>(null);
 
-  // FIX #10 — all field access goes through dashboardData?.field
+  // all field access goes through dashboardData?.field
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [abos,          setAbos]          = useState<AboSummary[]>([]);
 
-  // ── FIX #9: Month navigation ──────────────────────────────────────────────
+  // ── Month navigation ──────────────────────────────────────────────
   const handlePrevMonth = () => {
     if (monat === 1) { setMonat(12); setJahr((y) => y - 1); }
     else             { setMonat((m) => m - 1); }
@@ -128,7 +123,7 @@ export default function Dashboard() {
 
   // ── Data fetching ─────────────────────────────────────────────────────────
   useEffect(() => {
-    // FIX #2 — each call manages its own flag in .finally()
+    // independent loading/error states for each parallel call
     setLoadingUebersicht(true);
     setErrorUebersicht(null);
 
@@ -190,7 +185,7 @@ export default function Dashboard() {
           </h2>
         </div>
         <div className="flex items-center gap-6">
-          {/* FIX #9 — month picker with arrows */}
+          {/* month picker with arrows */}
           <div className="flex items-center gap-2 bg-surface-container-low border border-outline-variant/10 rounded-lg px-3 py-1.5">
             <button
               onClick={handlePrevMonth}
@@ -261,7 +256,7 @@ export default function Dashboard() {
                 <ShoppingBag className="text-primary/40 group-hover:text-primary transition-colors w-5 h-5" />
               </div>
               <div>
-                {/* FIX #10 — optional chaining throughout */}
+                {/* optional chaining throughout */}
                 <h2 className="font-headline text-3xl font-bold tracking-tight text-on-surface">
                   €{dashboardData?.monatskosten.gesamt.toFixed(2) ?? "0.00"}
                 </h2>
@@ -314,7 +309,7 @@ export default function Dashboard() {
           {/* Donut chart + recent expenses */}
           <section className="grid grid-cols-12 gap-8 mb-12">
 
-            {/* Donut chart — FIX #6: circumference 282.7 */}
+            {/* Donut chart — circumference 282.7 */}
             <div className="col-span-12 lg:col-span-8 bg-surface-container-low rounded-xl p-8 shadow-2xl border border-outline-variant/10">
               <div className="flex justify-between items-center mb-10">
                 <h3 className="font-headline text-lg font-bold">Ausgaben nach Kategorie</h3>
@@ -347,7 +342,7 @@ export default function Dashboard() {
                             fill="transparent" r="45%"
                             stroke="#1c1b1b" strokeWidth="20"
                           />
-                          {/* FIX #6 — segments using 282.7 circumference */}
+                          {/* circumference 282.7 */}
                           {donutSegments.map((s) => (
                             <circle
                               key={s.kategorie}

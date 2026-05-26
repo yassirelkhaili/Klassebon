@@ -3,14 +3,6 @@
  *
  * PATTERN: createTRPCProxyClient (NOT React Query hooks).
  * All API calls are imperative awaits inside event handlers.
- *
- * FIX #3: nachKategorie is fetched on button click (parallel with spartipps.generiere).
- *         Array is filtered for betrag > 0 BEFORE calling reduce.
- *         If filtered array is empty: highestCategory = "—"
- * FIX #4: Pattern documentation comment at top of file.
- * FIX #8: First stat card is labelled "Gesamtausgaben" and shows kontext.gesamt
- *         (not "Sparpotenzial" — that data is not returned by the backend).
- * FIX #9: Month picker uses ChevronLeft / ChevronRight arrow buttons.
  */
 
 import { useState } from "react";
@@ -72,7 +64,7 @@ export default function AITipps() {
   const [gesamtkosten,    setGesamtkosten]    = useState<number | null>(null);
   const [highestCategory, setHighestCategory] = useState<string>("—");
 
-  // ── FIX #9: Month navigation ──────────────────────────────────────────────
+  // ── Month navigation ──────────────────────────────────────────────
   const handlePrevMonth = () => {
     if (monat === 1) { setMonat(12); setJahr((y) => y - 1); }
     else             { setMonat((m) => m - 1); }
@@ -89,18 +81,18 @@ export default function AITipps() {
     setError(null);
 
     try {
-      // FIX #3 — both calls run in parallel
+      // both calls run in parallel
       const [tipsResult, kategorienResult] = await Promise.all([
         trpcClient.spartipps.generiere.query({ monat, jahr }),
         trpcClient.monatskosten.nachKategorie.query({ monat, jahr }),
       ]);
 
-      // FIX #8 — use kontext.gesamt labelled as "Gesamtausgaben"
+      // use kontext.gesamt labelled as "Gesamtausgaben"
       setGesamtkosten(tipsResult.kontext.gesamt);
       setTippsRaw(tipsResult.spartipps);
       setLastGenerated(new Date());
 
-      // FIX #3 — filter zeros, check empty before reduce
+      // filter zeros, check empty before reduce
       const nonZero = kategorienResult.filter((k: any) => k.betrag > 0);
       if (nonZero.length === 0) {
         setHighestCategory("—");
@@ -142,7 +134,7 @@ export default function AITipps() {
         </div>
 
         <div className="flex items-center gap-4">
-          {/* FIX #9 — month picker with arrows */}
+          {/* month picker with arrows */}
           <div className="flex items-center gap-2 bg-surface-container rounded-lg border border-outline-variant/10 px-3 py-2">
             <button
               onClick={handlePrevMonth}
@@ -179,7 +171,7 @@ export default function AITipps() {
         {/* Stat cards */}
         <div className="grid grid-cols-12 gap-6 mb-12">
 
-          {/* FIX #8 — "Gesamtausgaben" not "Sparpotenzial" */}
+          {/* "Gesamtausgaben" not "Sparpotenzial" */}
           <div className="col-span-4 bg-surface-container-low p-8 rounded-[2rem] flex flex-col justify-between group hover:bg-surface-container transition-colors duration-300">
             <div className="flex justify-between items-start mb-8">
               <span className="p-3 bg-primary-container/20 text-primary rounded-2xl">

@@ -68,17 +68,11 @@ export default function App() {
   // ── Modal helpers ─────────────────────────────────────────────────────────────
   const handleLogout = async () => {
     try {
-      console.log('🔴 Logout initiated...');
-      console.log('authClient:', authClient);
-      
       // better-auth signOut method
-      const result = await authClient.signOut();
-      console.log('✅ Logout successful:', result);
+      await authClient.signOut();
     } catch (error) {
-      console.error('❌ Logout error:', error);
       // Even if sign-out fails, redirect to login.
     } finally {
-      console.log('🔄 Clearing user state and navigating to login...');
       setCurrentUser(null);
       handleNavigate('login');
     }

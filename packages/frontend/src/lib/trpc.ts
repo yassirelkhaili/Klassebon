@@ -7,12 +7,6 @@
  *   Mutations: await trpcClient.[router].[procedure].mutate({ ...input })
  *
  * No useQuery, useMutation, or React Query anywhere in this codebase.
- *
- * FIX #1: AppRouter is imported from @klassebon/shared (type-only re-export).
- *         This avoids a direct cross-package path from frontend → backend.
- * FIX (credentials): fetch is overridden to always send cookies (credentials: "include").
- *         Without this every tRPC call would fail with UNAUTHORIZED because the
- *         Better Auth session cookie would not be forwarded to the backend.
  */
 
 import { createTRPCProxyClient, httpBatchLink } from "@trpc/client";

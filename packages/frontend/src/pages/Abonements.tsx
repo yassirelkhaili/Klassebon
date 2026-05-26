@@ -4,11 +4,6 @@
  * PATTERN: createTRPCProxyClient (NOT React Query hooks).
  * All API calls are imperative awaits inside useEffect or event handlers.
  *
- * FIX #7: fetchAbonnements is extracted as a named function — called from the
- *         initial fetch useEffect AND assigned to refetchRef.current so the
- *         parent can trigger a refetch after modal save/delete.
- * FIX #4: Pattern documentation comment at top of file.
- *
  * Features:
  * - Real abonnements.list data (no dummy data)
  * - Category filter (5 backend categories + "Alle") and nurAktive toggle
@@ -115,8 +110,6 @@ export default function Abonements({
   const [currentPage,       setCurrentPage]       = useState(1);
 
   const internalRefetchRef = useRef<(() => void) | null>(null);
-
-  // ── FIX #7: extracted fetch function ─────────────────────────────────────
   const fetchAbonnements = useCallback(() => {
     setLoading(true);
     setError(null);

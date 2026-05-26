@@ -4,11 +4,6 @@
  * PATTERN: createTRPCProxyClient (NOT React Query hooks).
  * All API calls are imperative awaits inside useEffect or event handlers.
  *
- * FIX #7: fetchExpenses is extracted as a named function — called from the
- *         initial fetch useEffect AND assigned to refetchRef.current so the
- *         parent can trigger a refetch after delete/add without duplicating logic.
- * FIX #4: Pattern documentation comment at top of file.
- *
  * Features:
  * - Real ausgaben.list data (no dummy data)
  * - 5 backend categories as filter dropdown
@@ -114,7 +109,7 @@ export default function Expenses({
   // Internal ref so the extracted fetchExpenses closure stays current
   const internalRefetchRef = useRef<(() => void) | null>(null);
 
-  // ── FIX #7: extracted fetch function ─────────────────────────────────────
+  // ── extracted fetch function ─────────────────────────────────────
   const fetchExpenses = useCallback(() => {
     setLoading(true);
     setError(null);
