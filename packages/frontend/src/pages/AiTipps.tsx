@@ -51,28 +51,36 @@ function parseTipps(raw: string): string[] {
 export default function AITipps() {
   const now = new Date();
   const [monat, setMonat] = useState(now.getMonth() + 1);
-  const [jahr,  setJahr]  = useState(now.getFullYear());
+  const [jahr, setJahr] = useState(now.getFullYear());
 
-  const [isGenerating,    setIsGenerating]    = useState(false);
-  const [error,           setError]           = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Tip content
-  const [tippsRaw,        setTippsRaw]        = useState<string | null>(null);
-  const [lastGenerated,   setLastGenerated]   = useState<Date | null>(null);
+  const [tippsRaw, setTippsRaw] = useState<string | null>(null);
+  const [lastGenerated, setLastGenerated] = useState<Date | null>(null);
 
   // Stat card values
-  const [gesamtkosten,    setGesamtkosten]    = useState<number | null>(null);
+  const [gesamtkosten, setGesamtkosten] = useState<number | null>(null);
   const [highestCategory, setHighestCategory] = useState<string>("—");
 
   // ── Month navigation ──────────────────────────────────────────────
   const handlePrevMonth = () => {
-    if (monat === 1) { setMonat(12); setJahr((y) => y - 1); }
-    else             { setMonat((m) => m - 1); }
+    if (monat === 1) {
+      setMonat(12);
+      setJahr((y) => y - 1);
+    } else {
+      setMonat((m) => m - 1);
+    }
   };
 
   const handleNextMonth = () => {
-    if (monat === 12) { setMonat(1); setJahr((y) => y + 1); }
-    else              { setMonat((m) => m + 1); }
+    if (monat === 12) {
+      setMonat(1);
+      setJahr((y) => y + 1);
+    } else {
+      setMonat((m) => m + 1);
+    }
   };
 
   // ── Generate tips ─────────────────────────────────────────────────────────
@@ -93,21 +101,15 @@ export default function AITipps() {
       setLastGenerated(new Date());
 
       // filter zeros, check empty before reduce
-      const nonZero = kategorienResult.filter((k: any) => k.betrag > 0);
+      const nonZero = kategorienResult.filter((k) => k.betrag > 0);
       if (nonZero.length === 0) {
         setHighestCategory("—");
       } else {
-        const highest = nonZero.reduce((prev: any, curr: any) =>
-          curr.betrag > prev.betrag ? curr : prev
-        );
+        const highest = nonZero.reduce((prev, curr) => (curr.betrag > prev.betrag ? curr : prev));
         setHighestCategory(highest.kategorie);
       }
     } catch (err: unknown) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Fehler beim Generieren der Spartipps. Ist Ollama gestartet?"
-      );
+      setError(err instanceof Error ? err.message : "Fehler beim Generieren der Spartipps. Ist Ollama gestartet?");
     } finally {
       setIsGenerating(false);
     }
@@ -117,14 +119,11 @@ export default function AITipps() {
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <div className="px-12 pb-12">
-
+    <div className="px-4 pb-8 pt-4 sm:px-6 lg:px-12 lg:pb-12">
       {/* Header */}
-      <header className="flex justify-between items-center mb-12">
+      <header className="mb-8 flex flex-col gap-4 lg:mb-12 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h2 className="text-4xl font-extrabold tracking-tight font-headline text-on-surface">
-            AI Tipps
-          </h2>
+          <h2 className="font-headline text-3xl font-extrabold tracking-tight text-on-surface sm:text-4xl">AI Tipps</h2>
           <div className="flex items-center gap-2 mt-2">
             <span className="w-2 h-2 rounded-full bg-primary" />
             <span className="text-xs font-medium text-on-surface-variant tracking-wider uppercase">
@@ -133,7 +132,7 @@ export default function AITipps() {
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
           {/* month picker with arrows */}
           <div className="flex items-center gap-2 bg-surface-container rounded-lg border border-outline-variant/10 px-3 py-2">
             <button
@@ -158,7 +157,7 @@ export default function AITipps() {
           <button
             onClick={handleGenerate}
             disabled={isGenerating}
-            className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-primary-container to-primary text-on-primary font-bold rounded-lg emerald-glow transition-all hover:brightness-110 active:scale-95 disabled:opacity-50"
+            className="flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-primary-container to-primary px-5 py-2.5 font-bold text-on-primary transition-all emerald-glow hover:brightness-110 active:scale-95 disabled:opacity-50 sm:px-6"
           >
             <RefreshCw className={`w-5 h-5 ${isGenerating ? "animate-spin" : ""}`} />
             {isGenerating ? "Generiere…" : "Neue Tipps generieren"}
@@ -167,12 +166,10 @@ export default function AITipps() {
       </header>
 
       <div className="max-w-7xl mx-auto">
-
         {/* Stat cards */}
-        <div className="grid grid-cols-12 gap-6 mb-12">
-
+        <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3 lg:mb-12 lg:gap-6">
           {/* "Gesamtausgaben" not "Sparpotenzial" */}
-          <div className="col-span-4 bg-surface-container-low p-8 rounded-[2rem] flex flex-col justify-between group hover:bg-surface-container transition-colors duration-300">
+          <div className="group flex flex-col justify-between rounded-2xl bg-surface-container-low p-5 transition-colors duration-300 hover:bg-surface-container sm:p-6 lg:p-8">
             <div className="flex justify-between items-start mb-8">
               <span className="p-3 bg-primary-container/20 text-primary rounded-2xl">
                 <Wallet className="w-6 h-6" />
@@ -184,47 +181,39 @@ export default function AITipps() {
               )}
             </div>
             <div>
-              <p className="font-label text-sm text-on-surface-variant mb-1">
-                Gesamtausgaben
-              </p>
-              <h3 className="font-headline font-extrabold text-4xl tracking-tighter text-on-surface group-hover:text-primary transition-colors">
+              <p className="font-label text-sm text-on-surface-variant mb-1">Gesamtausgaben</p>
+              <h3 className="font-headline text-3xl font-extrabold tracking-tighter text-on-surface transition-colors group-hover:text-primary sm:text-4xl">
                 {gesamtkosten !== null ? `€${gesamtkosten.toFixed(2)}` : "—"}
               </h3>
             </div>
           </div>
 
           {/* Highest category */}
-          <div className="col-span-4 bg-surface-container-low p-8 rounded-[2rem] flex flex-col justify-between group hover:bg-surface-container transition-colors duration-300">
+          <div className="group flex flex-col justify-between rounded-2xl bg-surface-container-low p-5 transition-colors duration-300 hover:bg-surface-container sm:p-6 lg:p-8">
             <div className="flex justify-between items-start mb-8">
               <span className="p-3 bg-tertiary-container/20 text-tertiary rounded-2xl">
                 <LayoutGrid className="w-6 h-6" />
               </span>
             </div>
             <div>
-              <p className="font-label text-sm text-on-surface-variant mb-1">
-                Höchste Kategorie
-              </p>
-              <h3 className="font-headline font-extrabold text-4xl tracking-tighter text-on-surface">
+              <p className="font-label text-sm text-on-surface-variant mb-1">Höchste Kategorie</p>
+              <h3 className="font-headline text-3xl font-extrabold tracking-tighter text-on-surface sm:text-4xl">
                 {highestCategory}
               </h3>
             </div>
           </div>
 
           {/* Last generated */}
-          <div className="col-span-4 bg-surface-container-low p-8 rounded-[2rem] flex flex-col justify-between group hover:bg-surface-container transition-colors duration-300">
+          <div className="group flex flex-col justify-between rounded-2xl bg-surface-container-low p-5 transition-colors duration-300 hover:bg-surface-container sm:p-6 lg:p-8">
             <div className="flex justify-between items-start mb-8">
               <span className="p-3 bg-outline-variant/20 text-on-surface-variant rounded-2xl">
                 <History className="w-6 h-6" />
               </span>
             </div>
             <div>
-              <p className="font-label text-sm text-on-surface-variant mb-1">
-                Letztes Update
-              </p>
+              <p className="font-label text-sm text-on-surface-variant mb-1">Letztes Update</p>
               <h3 className="font-headline font-extrabold text-2xl tracking-tight text-on-surface">
-                {lastGenerated
-                  ? lastGenerated.toLocaleDateString("de-DE")
-                  : "—"}
+                {lastGenerated ? lastGenerated.toLocaleDateString("de-DE") : "—"}
               </h3>
             </div>
           </div>
@@ -241,11 +230,9 @@ export default function AITipps() {
         {/* Tips section — only shown after successful generation */}
         {parsedTipps.length > 0 && (
           <>
-            <div className="flex items-end justify-between mb-8">
+            <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between lg:mb-8">
               <div>
-                <h4 className="font-headline font-bold text-3xl tracking-tighter mb-2">
-                  Personalisierte Spartipps
-                </h4>
+                <h4 className="font-headline font-bold text-3xl tracking-tighter mb-2">Personalisierte Spartipps</h4>
                 <p className="text-on-surface-variant">
                   Unsere lokale KI hat deine Ausgaben analysiert und folgende Tipps für dich.
                 </p>
@@ -266,16 +253,14 @@ export default function AITipps() {
                 return (
                   <div
                     key={index}
-                    className="flex items-start gap-8 bg-surface-container-low p-6 rounded-[1.5rem] hover:bg-surface-container transition-all group border border-outline-variant/10 shadow-sm"
+                    className="group flex flex-col gap-4 rounded-2xl border border-outline-variant/10 bg-surface-container-low p-5 shadow-sm transition-all hover:bg-surface-container sm:flex-row sm:items-start sm:gap-8 sm:p-6"
                   >
                     <div className="flex-shrink-0 w-16 h-16 rounded-2xl bg-surface-container-highest flex items-center justify-center border border-outline-variant/10">
                       <Icon className={`w-8 h-8 ${iconColors[index % iconColors.length]}`} />
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h5 className="font-headline font-bold text-xl text-on-surface">
-                          Tipp {index + 1}
-                        </h5>
+                        <h5 className="font-headline font-bold text-xl text-on-surface">Tipp {index + 1}</h5>
                         <span
                           className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${
                             tagColors[index % tagColors.length]
@@ -301,11 +286,9 @@ export default function AITipps() {
             <div className="w-20 h-20 rounded-2xl bg-primary-container/20 flex items-center justify-center mb-6">
               <RefreshCw className="w-10 h-10 text-primary" />
             </div>
-            <h4 className="font-headline font-bold text-2xl text-on-surface mb-2">
-              Noch keine Tipps generiert
-            </h4>
+            <h4 className="font-headline font-bold text-2xl text-on-surface mb-2">Noch keine Tipps generiert</h4>
             <p className="text-on-surface-variant max-w-sm leading-relaxed">
-              Wähle einen Monat und klicke auf „Neue Tipps generieren". Ollama muss lokal laufen.
+              Wähle einen Monat und klicke auf „Neue Tipps generieren&quot;. Ollama muss lokal laufen.
             </p>
           </div>
         )}

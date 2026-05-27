@@ -168,9 +168,7 @@ export default function App() {
     }
   };
 
-  const isAuthView = ["login", "register", "forgot-password", "reset-password", "loading"].includes(
-    currentView,
-  );
+  const isAuthView = ["login", "register", "forgot-password", "reset-password", "loading"].includes(currentView);
 
   const renderView = () => {
     switch (currentView) {
@@ -235,7 +233,7 @@ export default function App() {
         <Sidebar currentView={currentView as View} onNavigate={handleNavigate} onLogout={handleLogout} />
       ) : null}
 
-      <main className={!isAuthView ? "ml-64 min-h-screen" : ""}>
+      <main className={!isAuthView ? "min-h-screen pb-20 lg:ml-64 lg:pb-0" : ""}>
         <AnimatePresence mode="wait">
           <motion.div
             key={currentView}
@@ -264,7 +262,11 @@ export default function App() {
         />
       </Modal>
 
-      <Modal isOpen={activeModal === "new-abo"} onClose={closeModal} title={selectedAbo ? "Abo bearbeiten" : "Neues Abo"}>
+      <Modal
+        isOpen={activeModal === "new-abo"}
+        onClose={closeModal}
+        title={selectedAbo ? "Abo bearbeiten" : "Neues Abo"}
+      >
         {modalError ? <ModalError message={modalError} /> : null}
         <NewAboModal initialData={selectedAbo} isSaving={isSaving} onClose={closeModal} onSave={handleSaveAbo} />
       </Modal>
@@ -327,7 +329,7 @@ export default function App() {
 
 function ModalError({ message }: { message: string }) {
   return (
-    <div className="mx-8 mb-4 rounded-lg border border-error/30 bg-error/10 px-4 py-3 text-sm font-medium text-error">
+    <div className="mx-5 mb-4 rounded-lg border border-error/30 bg-error/10 px-4 py-3 text-sm font-medium text-error sm:mx-6">
       {message}
     </div>
   );

@@ -12,7 +12,7 @@
  * - Loading / error / empty states
  */
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, type MutableRefObject } from "react";
 import {
   PlusCircle,
   Calendar,
@@ -39,14 +39,7 @@ import type { Abonement } from "../types";
 
 const PAGE_SIZE = 10;
 
-const KATEGORIEN = [
-  "Alle",
-  "Streaming",
-  "Lebensmittel",
-  "Versicherung",
-  "Transport",
-  "Sonstiges",
-] as const;
+const KATEGORIEN = ["Alle", "Streaming", "Lebensmittel", "Versicherung", "Transport", "Sonstiges"] as const;
 
 type KategorieFilter = (typeof KATEGORIEN)[number];
 
@@ -54,33 +47,37 @@ type KategorieFilter = (typeof KATEGORIEN)[number];
 
 function turnus(t: string): string {
   switch (t) {
-    case "WOECHENTLICH": return "Wöchentlich";
-    case "MONATLICH":    return "Monatlich";
-    case "JAEHRLICH":    return "Jährlich";
-    default:             return t;
+    case "WOECHENTLICH":
+      return "Wöchentlich";
+    case "MONATLICH":
+      return "Monatlich";
+    case "JAEHRLICH":
+      return "Jährlich";
+    default:
+      return t;
   }
 }
 
 /** Convert any abo to its monthly equivalent for cost summaries */
 function monatlichenBetrag(betrag: number, t: string): number {
   switch (t) {
-    case "WOECHENTLICH": return betrag * (52 / 12);
-    case "MONATLICH":    return betrag;
-    case "JAEHRLICH":    return betrag / 12;
-    default:             return betrag;
+    case "WOECHENTLICH":
+      return betrag * (52 / 12);
+    case "MONATLICH":
+      return betrag;
+    case "JAEHRLICH":
+      return betrag / 12;
+    default:
+      return betrag;
   }
 }
 
 function getAboIcon(name: string) {
   const lower = name.toLowerCase();
-  if (lower.includes("netflix") || lower.includes("disney") || lower.includes("prime"))
-    return PlayCircle;
-  if (lower.includes("spotify") || lower.includes("apple music") || lower.includes("deezer"))
-    return Music;
-  if (lower.includes("cloud") || lower.includes("icloud") || lower.includes("dropbox"))
-    return Cloud;
-  if (lower.includes("fitness") || lower.includes("gym") || lower.includes("sport"))
-    return Dumbbell;
+  if (lower.includes("netflix") || lower.includes("disney") || lower.includes("prime")) return PlayCircle;
+  if (lower.includes("spotify") || lower.includes("apple music") || lower.includes("deezer")) return Music;
+  if (lower.includes("cloud") || lower.includes("icloud") || lower.includes("dropbox")) return Cloud;
+  if (lower.includes("fitness") || lower.includes("gym") || lower.includes("sport")) return Dumbbell;
   return CreditCard;
 }
 
@@ -91,23 +88,18 @@ interface AbonementsProps {
   onEditAbo: (abo: Abonement) => void;
   onDeleteAbo: (abo: Abonement) => void;
   /** App.tsx can pass a ref to trigger refetch after modal save/delete */
-  refetchRef?: React.MutableRefObject<(() => void) | null>;
+  refetchRef?: MutableRefObject<(() => void) | null>;
 }
 
 // ── Component ────────────────────────────────────────────────────────────────
 
-export default function Abonements({
-  onAddAbo,
-  onEditAbo,
-  onDeleteAbo,
-  refetchRef,
-}: AbonementsProps) {
-  const [abonnements,       setAbonnements]       = useState<Abonement[]>([]);
-  const [loading,           setLoading]           = useState(true);
-  const [error,             setError]             = useState<string | null>(null);
+export default function Abonements({ onAddAbo, onEditAbo, onDeleteAbo, refetchRef }: AbonementsProps) {
+  const [abonnements, setAbonnements] = useState<Abonement[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedKategorie, setSelectedKategorie] = useState<KategorieFilter>("Alle");
-  const [nurAktive,         setNurAktive]         = useState(false);
-  const [currentPage,       setCurrentPage]       = useState(1);
+  const [nurAktive, setNurAktive] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const internalRefetchRef = useRef<(() => void) | null>(null);
   const fetchAbonnements = useCallback(() => {
@@ -129,12 +121,8 @@ export default function Abonements({
 
     trpcClient.abonnements.list
       .query(input)
-      .then((data: any) => setAbonnements(data as Abonement[]))
-      .catch((err: unknown) =>
-        setError(
-          err instanceof Error ? err.message : "Fehler beim Laden der Abonnements"
-        )
-      )
+      .then((data) => setAbonnements(data as Abonement[]))
+      .catch((err: unknown) => setError(err instanceof Error ? err.message : "Fehler beim Laden der Abonnements"))
       .finally(() => setLoading(false));
   }, [selectedKategorie, nurAktive]);
 
@@ -152,27 +140,21 @@ export default function Abonements({
   }, [fetchAbonnements, refetchRef]);
 
   // ── Derived stats ─────────────────────────────────────────────────────────
-  const aktiveAbos       = abonnements.filter((a) => a.aktiv);
-  const monatlichGesamt  = aktiveAbos.reduce(
-    (s, a) => s + monatlichenBetrag(a.betrag, a.turnus), 0
-  );
-  const jaehrlichGesamt  = monatlichGesamt * 12;
+  const aktiveAbos = abonnements.filter((a) => a.aktiv);
+  const monatlichGesamt = aktiveAbos.reduce((s, a) => s + monatlichenBetrag(a.betrag, a.turnus), 0);
+  const jaehrlichGesamt = monatlichGesamt * 12;
 
   // ── Pagination ────────────────────────────────────────────────────────────
   const totalPages = Math.max(1, Math.ceil(abonnements.length / PAGE_SIZE));
-  const paginated  = abonnements.slice(
-    (currentPage - 1) * PAGE_SIZE,
-    currentPage * PAGE_SIZE
-  );
+  const paginated = abonnements.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <div className="px-12 pb-12">
-
+    <div className="px-4 pb-8 pt-4 sm:px-6 lg:px-12 lg:pb-12">
       {/* Header */}
-      <header className="flex items-center justify-between mb-12">
+      <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between lg:mb-12">
         <div className="space-y-1">
-          <h1 className="text-4xl font-extrabold font-headline tracking-tight text-on-surface">
+          <h1 className="font-headline text-3xl font-extrabold tracking-tight text-on-surface sm:text-4xl">
             Abonnements
           </h1>
           <div className="flex items-center gap-2 mt-2">
@@ -184,22 +166,21 @@ export default function Abonements({
         </div>
         <button
           onClick={onAddAbo}
-          className="bg-gradient-to-br from-primary-container to-primary text-on-primary px-6 py-2.5 rounded-lg font-bold flex items-center gap-2 transition-transform hover:scale-105 active:scale-95 shadow-xl shadow-primary/20"
+          className="flex items-center justify-center gap-2 rounded-lg bg-gradient-to-br from-primary-container to-primary px-5 py-2.5 font-bold text-on-primary shadow-xl shadow-primary/20 transition-transform hover:scale-105 active:scale-95 sm:px-6"
         >
-          <PlusCircle className="w-5 h-5" />
-          + Neues Abo
+          <PlusCircle className="w-5 h-5" />+ Neues Abo
         </button>
       </header>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-        <div className="bg-surface-container-low p-8 rounded-2xl relative overflow-hidden group border border-outline-variant/10">
+      <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3 lg:mb-12 lg:gap-6">
+        <div className="group relative overflow-hidden rounded-2xl border border-outline-variant/10 bg-surface-container-low p-5 sm:p-6 lg:p-8">
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl group-hover:bg-primary/10 transition-colors" />
           <p className="text-on-surface-variant font-medium mb-4 text-xs flex items-center gap-2 uppercase tracking-widest">
             <Calendar className="w-3.5 h-3.5" />
             Monatliche Kosten
           </p>
-          <h2 className="text-4xl font-black font-headline text-primary tracking-tighter">
+          <h2 className="font-headline text-3xl font-black tracking-tighter text-primary sm:text-4xl">
             €{monatlichGesamt.toFixed(2)}
           </h2>
           <p className="mt-4 text-xs text-on-surface-variant/60">
@@ -207,37 +188,33 @@ export default function Abonements({
           </p>
         </div>
 
-        <div className="bg-surface-container-low p-8 rounded-2xl relative overflow-hidden group border border-outline-variant/10">
+        <div className="group relative overflow-hidden rounded-2xl border border-outline-variant/10 bg-surface-container-low p-5 sm:p-6 lg:p-8">
           <div className="absolute top-0 right-0 w-32 h-32 bg-tertiary/5 rounded-full -mr-16 -mt-16 blur-3xl group-hover:bg-tertiary/10 transition-colors" />
           <p className="text-on-surface-variant font-medium mb-4 text-xs flex items-center gap-2 uppercase tracking-widest">
             <TrendingUp className="w-3.5 h-3.5" />
             Jährliche Kosten
           </p>
-          <h2 className="text-4xl font-black font-headline text-on-surface tracking-tighter">
+          <h2 className="font-headline text-3xl font-black tracking-tighter text-on-surface sm:text-4xl">
             €{jaehrlichGesamt.toFixed(2)}
           </h2>
-          <p className="mt-4 text-xs text-on-surface-variant/60">
-            Hochrechnung auf 12 Monate
-          </p>
+          <p className="mt-4 text-xs text-on-surface-variant/60">Hochrechnung auf 12 Monate</p>
         </div>
 
-        <div className="bg-surface-container-low p-8 rounded-2xl relative overflow-hidden group border border-outline-variant/10">
+        <div className="group relative overflow-hidden rounded-2xl border border-outline-variant/10 bg-surface-container-low p-5 sm:p-6 lg:p-8">
           <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/5 rounded-full -mr-16 -mt-16 blur-3xl group-hover:bg-secondary/10 transition-colors" />
           <p className="text-on-surface-variant font-medium mb-4 text-xs flex items-center gap-2 uppercase tracking-widest">
             <ShieldCheck className="w-3.5 h-3.5" />
             Aktive Abos
           </p>
-          <h2 className="text-4xl font-black font-headline text-on-surface tracking-tighter">
+          <h2 className="font-headline text-3xl font-black tracking-tighter text-on-surface sm:text-4xl">
             {aktiveAbos.length}
           </h2>
-          <p className="mt-4 text-xs text-on-surface-variant/60">
-            {abonnements.length - aktiveAbos.length} inaktiv
-          </p>
+          <p className="mt-4 text-xs text-on-surface-variant/60">{abonnements.length - aktiveAbos.length} inaktiv</p>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="flex items-center gap-4 mb-6 px-2">
+      <div className="mb-6 flex flex-col gap-3 px-1 sm:flex-row sm:items-center sm:gap-4 sm:px-2">
         <div className="relative">
           <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant w-4 h-4" />
           <select
@@ -259,7 +236,10 @@ export default function Abonements({
         {/* nurAktive toggle */}
         <label className="flex items-center gap-2 cursor-pointer select-none">
           <div
-            onClick={() => { setNurAktive((v) => !v); setCurrentPage(1); }}
+            onClick={() => {
+              setNurAktive((v) => !v);
+              setCurrentPage(1);
+            }}
             className={`relative w-10 h-5 rounded-full transition-colors ${
               nurAktive ? "bg-primary" : "bg-surface-container-highest"
             }`}
@@ -270,9 +250,7 @@ export default function Abonements({
               }`}
             />
           </div>
-          <span className="text-xs font-semibold text-on-surface-variant">
-            Nur aktive
-          </span>
+          <span className="text-xs font-semibold text-on-surface-variant">Nur aktive</span>
         </label>
       </div>
 
@@ -281,9 +259,7 @@ export default function Abonements({
         <div className="flex items-center justify-center py-24">
           <div className="flex flex-col items-center gap-4">
             <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-            <p className="text-on-surface-variant text-sm font-label tracking-widest uppercase">
-              Lade Abonnements…
-            </p>
+            <p className="text-on-surface-variant text-sm font-label tracking-widest uppercase">Lade Abonnements…</p>
           </div>
         </div>
       )}
@@ -305,8 +281,8 @@ export default function Abonements({
       {/* Table */}
       {!loading && !error && (
         <section className="flex flex-col flex-1 mb-12">
-          <div className="bg-surface-container-low rounded-2xl overflow-hidden shadow-2xl border border-outline-variant/10">
-            <div className="grid grid-cols-12 gap-4 px-8 py-5 bg-surface-container/50 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant border-b border-outline-variant/10">
+          <div className="overflow-hidden rounded-2xl border border-outline-variant/10 bg-surface-container-low shadow-2xl">
+            <div className="hidden grid-cols-12 gap-4 border-b border-outline-variant/10 bg-surface-container/50 px-6 py-5 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant lg:grid lg:px-8">
               <div className="col-span-5">Name & Service</div>
               <div className="col-span-2">Kategorie</div>
               <div className="col-span-2 text-center">Turnus</div>
@@ -325,41 +301,35 @@ export default function Abonements({
                   return (
                     <div
                       key={abo.id}
-                      className="grid grid-cols-12 gap-4 px-8 py-6 hover:bg-surface-container transition-colors items-center group"
+                      className="group grid grid-cols-1 gap-4 px-5 py-5 transition-colors hover:bg-surface-container sm:grid-cols-[1fr_auto] sm:items-center lg:grid-cols-12 lg:px-8 lg:py-6"
                     >
-                      <div className="col-span-5 flex items-center gap-4">
+                      <div className="flex items-center gap-4 lg:col-span-5">
                         <div className="w-10 h-10 rounded-xl bg-surface-container-highest flex items-center justify-center">
                           <Icon className="w-5 h-5 text-primary" />
                         </div>
                         <div>
                           <h4 className="font-bold text-on-surface">{abo.name}</h4>
-                          {!abo.aktiv && (
-                            <span className="text-[10px] font-bold text-error uppercase">
-                              Inaktiv
-                            </span>
-                          )}
+                          {!abo.aktiv && <span className="text-[10px] font-bold text-error uppercase">Inaktiv</span>}
                         </div>
                       </div>
 
-                      <div className="col-span-2">
+                      <div className="lg:col-span-2">
                         <span className="px-2 py-1 bg-secondary-container text-secondary text-[10px] font-bold rounded-full uppercase tracking-tighter">
                           {abo.kategorie ?? "Sonstiges"}
                         </span>
                       </div>
 
-                      <div className="col-span-2 text-center">
-                        <span className="text-xs text-on-surface-variant">
-                          {turnus(abo.turnus)}
-                        </span>
+                      <div className="lg:col-span-2 lg:text-center">
+                        <span className="text-xs text-on-surface-variant">{turnus(abo.turnus)}</span>
                       </div>
 
-                      <div className="col-span-2 text-right">
+                      <div className="sm:text-right lg:col-span-2">
                         <span className="font-bold font-headline text-on-surface">
                           €{monatlichenBetrag(abo.betrag, abo.turnus).toFixed(2)}
                         </span>
                       </div>
 
-                      <div className="col-span-1 flex justify-end gap-2">
+                      <div className="flex justify-end gap-2 sm:col-start-2 sm:row-span-4 sm:row-start-1 lg:col-span-1 lg:col-start-auto lg:row-auto">
                         <button
                           onClick={() => onEditAbo(abo)}
                           className="p-2 hover:bg-surface-bright rounded-lg text-on-surface-variant hover:text-primary transition-colors"
@@ -382,7 +352,7 @@ export default function Abonements({
             </div>
 
             {/* Pagination footer */}
-            <div className="bg-surface-container-low px-8 py-4 flex items-center justify-between border-t border-outline-variant/10">
+            <div className="flex flex-col gap-3 border-t border-outline-variant/10 bg-surface-container-low px-5 py-4 sm:flex-row sm:items-center sm:justify-between lg:px-8">
               <p className="text-xs text-on-surface-variant">
                 {abonnements.length === 0
                   ? "Keine Einträge"
@@ -413,7 +383,7 @@ export default function Abonements({
 
       {/* Footer encryption badge */}
       <div className="mt-auto flex justify-center pb-4">
-        <div className="bg-surface-container-low px-6 py-3 rounded-2xl flex items-center gap-4 shadow-xl border border-outline-variant/10">
+        <div className="flex flex-col items-center gap-3 rounded-2xl border border-outline-variant/10 bg-surface-container-low px-5 py-3 text-center shadow-xl sm:flex-row sm:gap-4 sm:px-6">
           <div className="flex items-center gap-2">
             <ShieldCheck className="text-primary w-4 h-4" />
             <span className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">

@@ -10,6 +10,7 @@ export default tseslint.config(
   {
     ignores: [
       "**/node_modules/**",
+      "**/.history/**",
       "**/dist/**",
       "**/coverage/**",
       "packages/backend/src/generated/**",

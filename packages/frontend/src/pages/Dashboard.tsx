@@ -6,17 +6,8 @@
 
  */
 
-import React, { useState, useEffect } from "react";
-import {
-  Bell,
-  TrendingDown,
-  ShoppingBag,
-  Sparkles,
-  ChevronLeft,
-  ChevronRight,
-  AlertCircle,
-  RefreshCw,
-} from "lucide-react";
+import { useState, useEffect } from "react";
+import { Bell, ShoppingBag, Sparkles, ChevronLeft, ChevronRight, AlertCircle, RefreshCw } from "lucide-react";
 import { trpcClient } from "../lib/trpc";
 
 // ── Types inferred from backend return shapes ────────────────────────────────
@@ -55,6 +46,8 @@ type AboSummary = {
   betrag: number;
   turnus: string;
   aktiv: boolean;
+  naechsteFaelligkeit?: Date | string;
+  kategorie?: string | null;
 };
 
 // ── Donut chart colours per category ────────────────────────────────────────
@@ -86,10 +79,14 @@ function formatMonthLabel(monat: number, jahr: number): string {
 
 function turnus(t: string): string {
   switch (t) {
-    case "WOECHENTLICH": return "Wöchentlich";
-    case "MONATLICH":    return "Monatlich";
-    case "JAEHRLICH":    return "Jährlich";
-    default:             return t;
+    case "WOECHENTLICH":
+      return "Wöchentlich";
+    case "MONATLICH":
+      return "Monatlich";
+    case "JAEHRLICH":
+      return "Jährlich";
+    default:
+      return t;
   }
 }
 
@@ -98,27 +95,35 @@ function turnus(t: string): string {
 export default function Dashboard() {
   const now = new Date();
   const [monat, setMonat] = useState(now.getMonth() + 1);
-  const [jahr, setJahr]   = useState(now.getFullYear());
+  const [jahr, setJahr] = useState(now.getFullYear());
 
   // independent loading/error states for each parallel call
   const [loadingUebersicht, setLoadingUebersicht] = useState(true);
-  const [loadingAbos,       setLoadingAbos]       = useState(true);
-  const [errorUebersicht,   setErrorUebersicht]   = useState<string | null>(null);
-  const [errorAbos,         setErrorAbos]         = useState<string | null>(null);
+  const [loadingAbos, setLoadingAbos] = useState(true);
+  const [errorUebersicht, setErrorUebersicht] = useState<string | null>(null);
+  const [errorAbos, setErrorAbos] = useState<string | null>(null);
 
   // all field access goes through dashboardData?.field
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
-  const [abos,          setAbos]          = useState<AboSummary[]>([]);
+  const [abos, setAbos] = useState<AboSummary[]>([]);
 
   // ── Month navigation ──────────────────────────────────────────────
   const handlePrevMonth = () => {
-    if (monat === 1) { setMonat(12); setJahr((y) => y - 1); }
-    else             { setMonat((m) => m - 1); }
+    if (monat === 1) {
+      setMonat(12);
+      setJahr((y) => y - 1);
+    } else {
+      setMonat((m) => m - 1);
+    }
   };
 
   const handleNextMonth = () => {
-    if (monat === 12) { setMonat(1); setJahr((y) => y + 1); }
-    else              { setMonat((m) => m + 1); }
+    if (monat === 12) {
+      setMonat(1);
+      setJahr((y) => y + 1);
+    } else {
+      setMonat((m) => m + 1);
+    }
   };
 
   // ── Data fetching ─────────────────────────────────────────────────────────
@@ -127,25 +132,21 @@ export default function Dashboard() {
     setLoadingUebersicht(true);
     setErrorUebersicht(null);
 
-    trpcClient.dashboard.uebersicht.query({ monat, jahr })
-      .then((data: any) => setDashboardData(data as DashboardData))
+    trpcClient.dashboard.uebersicht
+      .query({ monat, jahr })
+      .then((data) => setDashboardData(data as DashboardData))
       .catch((err: unknown) =>
-        setErrorUebersicht(
-          err instanceof Error ? err.message : "Fehler beim Laden des Dashboards"
-        )
+        setErrorUebersicht(err instanceof Error ? err.message : "Fehler beim Laden des Dashboards"),
       )
       .finally(() => setLoadingUebersicht(false));
 
     setLoadingAbos(true);
     setErrorAbos(null);
 
-    trpcClient.abonnements.list.query({})
-      .then((data: any) => setAbos(data as AboSummary[]))
-      .catch((err: unknown) =>
-        setErrorAbos(
-          err instanceof Error ? err.message : "Fehler beim Laden der Abonnements"
-        )
-      )
+    trpcClient.abonnements.list
+      .query({})
+      .then((data) => setAbos(data as AboSummary[]))
+      .catch((err: unknown) => setErrorAbos(err instanceof Error ? err.message : "Fehler beim Laden der Abonnements"))
       .finally(() => setLoadingAbos(false));
   }, [monat, jahr]);
 
@@ -172,19 +173,24 @@ export default function Dashboard() {
   })();
 
   const donutTotal = dashboardData?.monatskosten.gesamt ?? 0;
+  const upcomingSubscriptions = dashboardData?.naechsteFaelligkeiten.length
+    ? dashboardData.naechsteFaelligkeiten
+    : abos
+        .filter((abo) => abo.aktiv)
+        .sort((a, b) => new Date(a.naechsteFaelligkeit ?? 0).getTime() - new Date(b.naechsteFaelligkeit ?? 0).getTime())
+        .slice(0, 5);
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <div className="px-12 pb-12">
-
+    <div className="px-4 pb-8 pt-2 sm:px-6 lg:px-12 lg:pb-12">
       {/* Header */}
-      <header className="flex items-center justify-between py-8">
+      <header className="flex flex-col gap-4 py-6 lg:flex-row lg:items-center lg:justify-between lg:py-8">
         <div>
           <h2 className="font-headline font-bold text-on-surface tracking-tight text-xl">
             Willkommen zurück — dein privates Haushaltsbuch ist aktuell.
           </h2>
         </div>
-        <div className="flex items-center gap-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center lg:gap-6">
           {/* month picker with arrows */}
           <div className="flex items-center gap-2 bg-surface-container-low border border-outline-variant/10 rounded-lg px-3 py-1.5">
             <button
@@ -221,9 +227,7 @@ export default function Dashboard() {
         <div className="flex items-center justify-center py-24">
           <div className="flex flex-col items-center gap-4">
             <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-            <p className="text-on-surface-variant text-sm font-label tracking-widest uppercase">
-              Lade Dashboard…
-            </p>
+            <p className="text-on-surface-variant text-sm font-label tracking-widest uppercase">Lade Dashboard…</p>
           </div>
         </div>
       )}
@@ -232,11 +236,11 @@ export default function Dashboard() {
       {!isLoading && (errorUebersicht || errorAbos) && (
         <div className="mb-8 p-4 bg-error-container/20 border border-error/30 rounded-xl flex items-center gap-3">
           <AlertCircle className="w-5 h-5 text-error flex-shrink-0" />
-          <p className="text-sm text-on-surface">
-            {errorUebersicht ?? errorAbos}
-          </p>
+          <p className="text-sm text-on-surface">{errorUebersicht ?? errorAbos}</p>
           <button
-            onClick={() => { setMonat(monat); }} // triggers useEffect retry
+            onClick={() => {
+              setMonat(monat);
+            }} // triggers useEffect retry
             className="ml-auto flex items-center gap-1 text-xs font-bold text-primary hover:underline"
           >
             <RefreshCw className="w-3 h-3" /> Wiederholen
@@ -248,7 +252,7 @@ export default function Dashboard() {
       {!isLoading && !errorUebersicht && !errorAbos && (
         <>
           {/* Stat cards */}
-          <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <section className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3 lg:mb-12 lg:gap-6">
             {/* Monthly spend */}
             <div className="bg-surface-container-low rounded-xl p-6 flex flex-col justify-between group hover:bg-surface-container transition-all duration-300">
               <div className="flex justify-between items-start mb-4">
@@ -261,8 +265,8 @@ export default function Dashboard() {
                   €{dashboardData?.monatskosten.gesamt.toFixed(2) ?? "0.00"}
                 </h2>
                 <p className="text-xs text-on-surface-variant mt-2">
-                  Ausgaben: €{dashboardData?.monatskosten.ausgabenSumme.toFixed(2) ?? "0.00"} ·
-                  Abos: €{dashboardData?.monatskosten.abonnementsSumme.toFixed(2) ?? "0.00"}
+                  Ausgaben: €{dashboardData?.monatskosten.ausgabenSumme.toFixed(2) ?? "0.00"} · Abos: €
+                  {dashboardData?.monatskosten.abonnementsSumme.toFixed(2) ?? "0.00"}
                 </p>
               </div>
             </div>
@@ -307,11 +311,10 @@ export default function Dashboard() {
           </section>
 
           {/* Donut chart + recent expenses */}
-          <section className="grid grid-cols-12 gap-8 mb-12">
-
+          <section className="mb-8 grid grid-cols-1 gap-6 lg:mb-12 lg:grid-cols-12 lg:gap-8">
             {/* Donut chart — circumference 282.7 */}
-            <div className="col-span-12 lg:col-span-8 bg-surface-container-low rounded-xl p-8 shadow-2xl border border-outline-variant/10">
-              <div className="flex justify-between items-center mb-10">
+            <div className="rounded-xl border border-outline-variant/10 bg-surface-container-low p-5 shadow-2xl sm:p-6 lg:col-span-8 lg:p-8">
+              <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between lg:mb-10">
                 <h3 className="font-headline text-lg font-bold">Ausgaben nach Kategorie</h3>
                 <div className="flex flex-wrap gap-4 text-xs font-label text-on-surface-variant">
                   {donutSegments.map((s) => (
@@ -327,27 +330,23 @@ export default function Dashboard() {
               </div>
 
               {dashboardData && (
-                <div className="flex flex-col md:flex-row items-center justify-around gap-8">
+                <div className="flex flex-col items-center justify-around gap-8 md:flex-row">
                   {donutSegments.length === 0 ? (
-                    <p className="text-on-surface-variant text-sm">
-                      Keine Ausgaben in diesem Monat
-                    </p>
+                    <p className="text-on-surface-variant text-sm">Keine Ausgaben in diesem Monat</p>
                   ) : (
                     <>
-                      <div className="relative w-64 h-64 flex items-center justify-center">
+                      <div className="relative flex h-56 w-56 items-center justify-center sm:h-64 sm:w-64">
                         <svg className="w-full h-full transform -rotate-90">
                           {/* Background track */}
-                          <circle
-                            cx="50%" cy="50%"
-                            fill="transparent" r="45%"
-                            stroke="#1c1b1b" strokeWidth="20"
-                          />
+                          <circle cx="50%" cy="50%" fill="transparent" r="45%" stroke="#1c1b1b" strokeWidth="20" />
                           {/* circumference 282.7 */}
                           {donutSegments.map((s) => (
                             <circle
                               key={s.kategorie}
-                              cx="50%" cy="50%"
-                              fill="transparent" r="45%"
+                              cx="50%"
+                              cy="50%"
+                              fill="transparent"
+                              r="45%"
                               stroke={KATEGORIE_COLORS[s.kategorie] ?? "#888"}
                               strokeDasharray={CIRCUMFERENCE}
                               strokeDashoffset={s.offset}
@@ -361,21 +360,15 @@ export default function Dashboard() {
                         </svg>
                         <div className="absolute flex flex-col items-center">
                           <span className="text-on-surface-variant text-xs font-label">Gesamt</span>
-                          <span className="text-2xl font-bold font-headline">
-                            €{donutTotal.toFixed(0)}
-                          </span>
+                          <span className="text-2xl font-bold font-headline">€{donutTotal.toFixed(0)}</span>
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-x-12 gap-y-4 w-full md:w-auto">
+                      <div className="grid w-full grid-cols-2 gap-x-8 gap-y-4 md:w-auto lg:gap-x-12">
                         {donutSegments.map((s) => (
                           <div key={s.kategorie} className="flex flex-col">
-                            <span className="text-xs text-on-surface-variant font-label">
-                              {s.kategorie}
-                            </span>
-                            <span className="text-xl font-bold text-on-surface">
-                              {s.pct.toFixed(1)}%
-                            </span>
+                            <span className="text-xs text-on-surface-variant font-label">{s.kategorie}</span>
+                            <span className="text-xl font-bold text-on-surface">{s.pct.toFixed(1)}%</span>
                           </div>
                         ))}
                       </div>
@@ -386,16 +379,14 @@ export default function Dashboard() {
             </div>
 
             {/* AI tip teaser */}
-            <div className="col-span-12 lg:col-span-4 flex flex-col">
-              <div className="bg-primary-container/10 border border-primary/20 rounded-xl p-8 h-full flex flex-col relative overflow-hidden group shadow-xl">
+            <div className="flex flex-col lg:col-span-4">
+              <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-primary/20 bg-primary-container/10 p-5 shadow-xl sm:p-6 lg:p-8">
                 <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/20 blur-[80px] rounded-full group-hover:bg-primary/30 transition-all duration-700" />
                 <div className="relative z-10 flex flex-col h-full">
                   <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center text-primary mb-6">
                     <Sparkles className="w-6 h-6" />
                   </div>
-                  <h3 className="font-headline text-2xl font-bold text-on-surface mb-4">
-                    KI-Spartipp
-                  </h3>
+                  <h3 className="font-headline text-2xl font-bold text-on-surface mb-4">KI-Spartipp</h3>
                   <p className="font-body text-on-surface/80 leading-relaxed mb-8">
                     Lass dir von unserer lokalen KI personalisierte Spartipps für diesen Monat generieren.
                   </p>
@@ -410,75 +401,68 @@ export default function Dashboard() {
           </section>
 
           {/* Recent expenses + upcoming subscriptions */}
-          <section className="grid grid-cols-12 gap-8">
-
+          <section className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8">
             {/* Recent expenses */}
-            <div className="col-span-12 lg:col-span-8 bg-surface-container-low rounded-xl p-8 shadow-2xl border border-outline-variant/10">
-              <div className="flex justify-between items-center mb-8">
+            <div className="rounded-xl border border-outline-variant/10 bg-surface-container-low p-5 shadow-2xl sm:p-6 lg:col-span-8 lg:p-8">
+              <div className="mb-6 flex items-center justify-between lg:mb-8">
                 <h3 className="font-headline text-lg font-bold">Letzte Ausgaben</h3>
               </div>
               {dashboardData?.letzteAusgaben && dashboardData.letzteAusgaben.length > 0 ? (
-                <div className="space-y-1">
-                  <div className="grid grid-cols-4 px-4 py-2 text-[10px] uppercase tracking-widest text-on-surface-variant font-bold border-b border-outline-variant/10 mb-2">
-                    <span>Titel</span>
-                    <span>Kategorie</span>
-                    <span>Datum</span>
-                    <span className="text-right">Betrag</span>
-                  </div>
-                  {dashboardData.letzteAusgaben.map((ausgabe) => (
-                    <div
-                      key={ausgabe.id}
-                      className="grid grid-cols-4 items-center px-4 py-4 rounded-xl hover:bg-surface-container transition-colors"
-                    >
-                      <span className="font-medium text-sm text-on-surface">{ausgabe.titel}</span>
-                      <span className="text-xs text-on-surface-variant">
-                        {ausgabe.kategorie ?? "Sonstiges"}
-                      </span>
-                      <span className="text-xs text-on-surface-variant">
-                        {formatDate(ausgabe.datum)}
-                      </span>
-                      <span className="text-sm font-bold text-right text-on-surface">
-                        −€{ausgabe.betrag.toFixed(2)}
-                      </span>
+                <div className="space-y-1 overflow-x-auto">
+                  <div className="min-w-[620px]">
+                    <div className="grid grid-cols-4 px-4 py-2 text-[10px] uppercase tracking-widest text-on-surface-variant font-bold border-b border-outline-variant/10 mb-2">
+                      <span>Titel</span>
+                      <span>Kategorie</span>
+                      <span>Datum</span>
+                      <span className="text-right">Betrag</span>
                     </div>
-                  ))}
+                    {dashboardData.letzteAusgaben.map((ausgabe) => (
+                      <div
+                        key={ausgabe.id}
+                        className="grid grid-cols-4 items-center px-4 py-4 rounded-xl hover:bg-surface-container transition-colors"
+                      >
+                        <span className="font-medium text-sm text-on-surface">{ausgabe.titel}</span>
+                        <span className="text-xs text-on-surface-variant">{ausgabe.kategorie ?? "Sonstiges"}</span>
+                        <span className="text-xs text-on-surface-variant">{formatDate(ausgabe.datum)}</span>
+                        <span className="text-sm font-bold text-right text-on-surface">
+                          −€{ausgabe.betrag.toFixed(2)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ) : (
-                <p className="text-on-surface-variant text-sm">
-                  Keine Ausgaben in diesem Monat erfasst.
-                </p>
+                <p className="text-on-surface-variant text-sm">Keine Ausgaben in diesem Monat erfasst.</p>
               )}
             </div>
 
             {/* Upcoming subscriptions */}
-            <div className="col-span-12 lg:col-span-4 bg-surface-container-low rounded-xl p-8 shadow-2xl border border-outline-variant/10">
-              <h3 className="font-headline text-lg font-bold mb-8">
-                Bald fällige Abos
-              </h3>
-              {dashboardData?.naechsteFaelligkeiten &&
-              dashboardData.naechsteFaelligkeiten.length > 0 ? (
+            <div className="rounded-xl border border-outline-variant/10 bg-surface-container-low p-5 shadow-2xl sm:p-6 lg:col-span-4 lg:p-8">
+              <h3 className="font-headline text-lg font-bold mb-8">Bald fällige Abos</h3>
+              {upcomingSubscriptions.length > 0 ? (
                 <div className="space-y-4">
-                  {dashboardData.naechsteFaelligkeiten.map((abo) => (
-                    <div
-                      key={abo.id}
-                      className="flex items-center justify-between p-4 bg-surface-container rounded-xl"
-                    >
-                      <div>
-                        <p className="text-sm font-bold text-on-surface">{abo.name}</p>
-                        <p className="text-[10px] text-on-surface-variant">
-                          {turnus(abo.turnus)} · {formatDate(abo.naechsteFaelligkeit)}
-                        </p>
+                  {upcomingSubscriptions.map((abo) => {
+                    const dateLabel = abo.naechsteFaelligkeit ? formatDate(abo.naechsteFaelligkeit) : null;
+
+                    return (
+                      <div
+                        key={abo.id}
+                        className="flex items-center justify-between p-4 bg-surface-container rounded-xl"
+                      >
+                        <div>
+                          <p className="text-sm font-bold text-on-surface">{abo.name}</p>
+                          <p className="text-[10px] text-on-surface-variant">
+                            {turnus(abo.turnus)}
+                            {dateLabel ? ` · ${dateLabel}` : ""}
+                          </p>
+                        </div>
+                        <span className="text-sm font-bold text-primary">€{abo.betrag.toFixed(2)}</span>
                       </div>
-                      <span className="text-sm font-bold text-primary">
-                        €{abo.betrag.toFixed(2)}
-                      </span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : (
-                <p className="text-sm text-on-surface-variant">
-                  Keine fälligen Abos in den nächsten 30 Tagen.
-                </p>
+                <p className="text-sm text-on-surface-variant">Keine fälligen Abos in den nächsten 30 Tagen.</p>
               )}
             </div>
           </section>

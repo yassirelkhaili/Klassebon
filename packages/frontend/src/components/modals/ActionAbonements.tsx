@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import { useState, type FormEvent } from "react";
 import { AlertCircle, CheckCircle2, ChevronDown, CreditCard, ShieldCheck, Trash2 } from "lucide-react";
 import type { Abonement, Expense } from "../../types";
 
@@ -45,7 +45,7 @@ export function NewAboModal({ onClose, onSave, initialData, isSaving = false }: 
     event.preventDefault();
     onSave({
       name: name.trim(),
-      betrag: Number(betrag),
+      betrag: Number(betrag.replace(",", ".")),
       turnus,
       startDatum: new Date(`${startDatum}T00:00:00.000Z`).toISOString(),
       naechsteFaelligkeit: new Date(`${naechsteFaelligkeit}T00:00:00.000Z`).toISOString(),
@@ -56,7 +56,7 @@ export function NewAboModal({ onClose, onSave, initialData, isSaving = false }: 
   };
 
   return (
-    <form className="space-y-6 px-10 pb-8" onSubmit={handleSubmit}>
+    <form className="space-y-4 px-5 pb-5 sm:px-6 sm:pb-6" onSubmit={handleSubmit}>
       <div>
         <label className="font-label mb-2.5 ml-1 block text-[11px] font-bold uppercase tracking-[0.15em] text-on-surface-variant/60">
           Subscription Name
@@ -64,7 +64,7 @@ export function NewAboModal({ onClose, onSave, initialData, isSaving = false }: 
         <div className="relative">
           <input
             required
-            className="w-full rounded-xl border-none bg-surface-container px-5 py-4 text-on-surface transition-all focus:bg-surface-bright focus:ring-1 focus:ring-primary"
+            className="w-full rounded-xl border-none bg-surface-container px-4 py-3 text-on-surface transition-all focus:bg-surface-bright focus:ring-1 focus:ring-primary"
             placeholder="z.B. Netflix"
             type="text"
             value={name}
@@ -74,7 +74,7 @@ export function NewAboModal({ onClose, onSave, initialData, isSaving = false }: 
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label className="font-label mb-2.5 ml-1 block text-[11px] font-bold uppercase tracking-[0.15em] text-on-surface-variant/60">
             Price
@@ -82,15 +82,15 @@ export function NewAboModal({ onClose, onSave, initialData, isSaving = false }: 
           <div className="relative">
             <input
               required
-              min="0.01"
-              step="0.01"
-              className="w-full rounded-xl border-none bg-surface-container py-4 pl-16 pr-5 text-on-surface transition-all focus:bg-surface-bright focus:ring-1 focus:ring-primary"
+              className="w-full rounded-xl border-none bg-surface-container py-3 pl-14 pr-4 text-on-surface transition-all focus:bg-surface-bright focus:ring-1 focus:ring-primary"
+              inputMode="decimal"
+              pattern="[0-9]*[.,]?[0-9]*"
               placeholder="0.00"
-              type="number"
+              type="text"
               value={betrag}
               onChange={(event) => setBetrag(event.target.value)}
             />
-            <div className="absolute left-5 top-1/2 -translate-y-1/2 font-bold text-primary">EUR</div>
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-primary">EUR</div>
           </div>
         </div>
 
@@ -100,7 +100,7 @@ export function NewAboModal({ onClose, onSave, initialData, isSaving = false }: 
           </label>
           <div className="relative">
             <select
-              className="w-full cursor-pointer appearance-none rounded-xl border-none bg-surface-container px-5 py-4 text-on-surface transition-all focus:bg-surface-bright focus:ring-1 focus:ring-primary"
+              className="w-full cursor-pointer appearance-none rounded-xl border-none bg-surface-container px-4 py-3 text-on-surface transition-all focus:bg-surface-bright focus:ring-1 focus:ring-primary"
               value={turnus}
               onChange={(event) => setTurnus(event.target.value as Turnus)}
             >
@@ -113,14 +113,14 @@ export function NewAboModal({ onClose, onSave, initialData, isSaving = false }: 
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label className="font-label mb-2.5 ml-1 block text-[11px] font-bold uppercase tracking-[0.15em] text-on-surface-variant/60">
             Startdatum
           </label>
           <input
             required
-            className="w-full rounded-xl border-none bg-surface-container px-5 py-4 text-on-surface transition-all focus:bg-surface-bright focus:ring-1 focus:ring-primary"
+            className="w-full rounded-xl border-none bg-surface-container px-4 py-3 text-on-surface transition-all focus:bg-surface-bright focus:ring-1 focus:ring-primary"
             type="date"
             value={startDatum}
             onChange={(event) => setStartDatum(event.target.value)}
@@ -132,7 +132,7 @@ export function NewAboModal({ onClose, onSave, initialData, isSaving = false }: 
           </label>
           <input
             required
-            className="w-full rounded-xl border-none bg-surface-container px-5 py-4 text-on-surface transition-all focus:bg-surface-bright focus:ring-1 focus:ring-primary"
+            className="w-full rounded-xl border-none bg-surface-container px-4 py-3 text-on-surface transition-all focus:bg-surface-bright focus:ring-1 focus:ring-primary"
             type="date"
             value={naechsteFaelligkeit}
             onChange={(event) => setNaechsteFaelligkeit(event.target.value)}
@@ -146,7 +146,7 @@ export function NewAboModal({ onClose, onSave, initialData, isSaving = false }: 
         </label>
         <div className="relative">
           <select
-            className="w-full cursor-pointer appearance-none rounded-xl border-none bg-surface-container px-5 py-4 text-on-surface transition-all focus:bg-surface-bright focus:ring-1 focus:ring-primary"
+            className="w-full cursor-pointer appearance-none rounded-xl border-none bg-surface-container px-4 py-3 text-on-surface transition-all focus:bg-surface-bright focus:ring-1 focus:ring-primary"
             value={kategorie}
             onChange={(event) => setKategorie(event.target.value as Kategorie)}
           >
@@ -161,9 +161,9 @@ export function NewAboModal({ onClose, onSave, initialData, isSaving = false }: 
       </div>
 
       <textarea
-        className="w-full resize-none rounded-xl border-none bg-surface-container px-5 py-4 text-on-surface transition-all focus:bg-surface-bright focus:ring-1 focus:ring-primary"
+        className="w-full resize-none rounded-xl border-none bg-surface-container px-4 py-3 text-on-surface transition-all focus:bg-surface-bright focus:ring-1 focus:ring-primary"
         placeholder="Beschreibung"
-        rows={3}
+        rows={2}
         value={beschreibung}
         onChange={(event) => setBeschreibung(event.target.value)}
       />
@@ -180,25 +180,25 @@ export function NewAboModal({ onClose, onSave, initialData, isSaving = false }: 
         </label>
       ) : null}
 
-      <div className="flex items-start gap-4 rounded-xl border border-primary/10 bg-primary/5 p-5">
+      <div className="flex items-start gap-3 rounded-xl border border-primary/10 bg-primary/5 p-4">
         <ShieldCheck className="mt-0.5 h-5 w-5 text-primary" />
         <p className="text-xs leading-relaxed text-on-secondary-container/80">
           This subscription is stored through your protected tRPC backend session.
         </p>
       </div>
 
-      <div className="flex items-center justify-end gap-6 pt-2">
+      <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:items-center sm:justify-end">
         <button
           type="button"
           onClick={onClose}
-          className="font-label text-sm font-bold tracking-wide text-on-surface-variant/70 transition-colors hover:text-on-surface"
+          className="rounded-full px-5 py-3 text-sm font-bold tracking-wide text-on-surface-variant/70 transition-colors hover:bg-surface-container hover:text-on-surface"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={isSaving}
-          className="flex items-center gap-2.5 rounded-2xl bg-primary px-10 py-4 font-extrabold text-on-primary transition-all hover:brightness-105 active:scale-95 disabled:opacity-60"
+          className="flex items-center justify-center gap-2.5 rounded-full bg-primary px-7 py-3 font-extrabold text-on-primary transition-all hover:brightness-105 active:scale-95 disabled:opacity-60"
         >
           <span>{isSaving ? "Saving..." : "Save Abo"}</span>
           <CheckCircle2 className="h-5 w-5" />
@@ -227,7 +227,7 @@ export function DeleteConfirmModal({ type, item, onClose, onConfirm, isWorking =
 
   return (
     <div className="w-full">
-      <div className="p-6 text-center">
+      <div className="p-5 text-center">
         <div
           className={`mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full ${
             isLogout ? "bg-secondary-container/20 text-primary" : "bg-error-container/20 text-error"
@@ -235,7 +235,9 @@ export function DeleteConfirmModal({ type, item, onClose, onConfirm, isWorking =
         >
           {isLogout ? <AlertCircle className="h-6 w-6" /> : <Trash2 className="h-6 w-6" />}
         </div>
-        <h2 className={`font-headline mb-2 text-xl font-bold tracking-tight ${isLogout ? "text-primary" : "text-on-surface"}`}>
+        <h2
+          className={`font-headline mb-2 text-xl font-bold tracking-tight ${isLogout ? "text-primary" : "text-on-surface"}`}
+        >
           {title}
         </h2>
         <p className="px-2 text-sm leading-relaxed text-on-surface-variant">{description}</p>
@@ -248,9 +250,7 @@ export function DeleteConfirmModal({ type, item, onClose, onConfirm, isWorking =
               <CreditCard className="h-5 w-5 text-on-surface" />
             </div>
             <div>
-              <p className="font-label text-xs font-semibold uppercase tracking-wider text-on-surface">
-                {itemName}
-              </p>
+              <p className="font-label text-xs font-semibold uppercase tracking-wider text-on-surface">{itemName}</p>
               {itemAmount !== null ? (
                 <p className="font-label text-[10px] text-on-surface-variant">EUR {itemAmount.toFixed(2)}</p>
               ) : null}

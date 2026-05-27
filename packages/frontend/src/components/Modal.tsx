@@ -1,6 +1,6 @@
-import { ReactNode } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
+import type { ReactNode } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X } from "lucide-react";
 
 interface ModalProps {
   isOpen: boolean;
@@ -14,38 +14,39 @@ export default function Modal({ isOpen, onClose, title, children, showClose = tr
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/65 backdrop-blur-sm"
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-xl bg-surface-container-low rounded-3xl overflow-hidden shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5)] border border-outline-variant/10"
+            className="relative flex max-h-[min(88vh,680px)] w-full max-w-[calc(100vw-1.5rem)] flex-col overflow-hidden rounded-2xl border border-outline-variant/10 bg-surface-container-low shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5)] sm:max-w-lg"
           >
             {title && (
-              <div className="px-8 pt-10 pb-6">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="text-3xl font-extrabold tracking-tight text-on-surface mb-1">{title}</h3>
+              <div className="shrink-0 px-5 pt-5 pb-4 sm:px-6 sm:pt-6">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <h3 className="text-xl font-extrabold tracking-tight text-on-surface sm:text-2xl">{title}</h3>
                   </div>
                   {showClose && (
-                    <button 
+                    <button
                       onClick={onClose}
-                      className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors"
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface-container text-on-surface-variant transition-colors hover:text-on-surface"
+                      aria-label="Close modal"
                     >
-                      <X className="w-5 h-5" />
+                      <X className="h-5 w-5" />
                     </button>
                   )}
                 </div>
               </div>
             )}
-            {children}
+            <div className="min-h-0 flex-1 overflow-y-auto">{children}</div>
           </motion.div>
         </div>
       )}
