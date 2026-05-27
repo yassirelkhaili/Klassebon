@@ -3,20 +3,28 @@ import { AnimatePresence, motion } from "framer-motion";
 
 import Modal from "./components/Modal";
 import Sidebar from "./components/Sidebar";
+import AddExpenseModal, { type ExpenseFormValues } from "./components/modals/AddExpense";
+import { DeleteConfirmModal, NewAboModal, type AboFormValues } from "./components/modals/ActionAbonements";
+import { PostScanModal, ProcessingState, ScanReceiptModal } from "./components/modals/ScanModals";
 import { authClient, Login, Register, ResetPassword } from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
-import { default as Abonements } from "./pages/Abonement";
+import Abonements from "./pages/Abonements";
 import AiTipps from "./pages/AiTipps";
 import Expenses from "./pages/Expenses";
 import { trpcClient } from "./lib/trpc";
-import type { Expense, ModalType, View } from "./types";
+import type { Abonement, Expense, ModalType, View } from "./types";
 
 export default function App() {
   const [currentView, setCurrentView] = useState<View | "loading">("loading");
   const [activeModal, setActiveModal] = useState<ModalType | null>(null);
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
+  const [selectedAbo, setSelectedAbo] = useState<Abonement | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [modalError, setModalError] = useState<string | null>(null);
+  const [scanDraft, setScanDraft] = useState<ExpenseFormValues | null>(null);
 
   const expensesRefetchRef = useRef<(() => void) | null>(null);
+  const abonnementsRefetchRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     authClient
@@ -34,6 +42,9 @@ export default function App() {
   const closeModal = () => {
     setActiveModal(null);
     setSelectedExpense(null);
+    setSelectedAbo(null);
+    setModalError(null);
+    setScanDraft(null);
   };
 
   const handleLogout = async () => {
@@ -49,10 +60,111 @@ export default function App() {
     if (!selectedExpense?.id) return;
 
     try {
+      setIsSaving(true);
+      setModalError(null);
       await trpcClient.ausgaben.delete.mutate({ id: selectedExpense.id });
       expensesRefetchRef.current?.();
-    } finally {
       closeModal();
+    } catch (error) {
+      setModalError(error instanceof Error ? error.message : "Ausgabe konnte nicht geloescht werden.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSaveExpense = async (values: ExpenseFormValues) => {
+    try {
+      setIsSaving(true);
+      setModalError(null);
+      if (selectedExpense) {
+        await trpcClient.ausgaben.update.mutate({ id: selectedExpense.id, ...values });
+      } else {
+        await trpcClient.ausgaben.create.mutate(values);
+      }
+      expensesRefetchRef.current?.();
+      closeModal();
+    } catch (error) {
+      setModalError(error instanceof Error ? error.message : "Ausgabe konnte nicht gespeichert werden.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSaveAbo = async (values: AboFormValues) => {
+    try {
+      setIsSaving(true);
+      setModalError(null);
+      if (selectedAbo) {
+        await trpcClient.abonnements.update.mutate({ id: selectedAbo.id, ...values });
+      } else {
+        const { aktiv: _aktiv, ...createValues } = values;
+        await trpcClient.abonnements.create.mutate(createValues);
+      }
+      abonnementsRefetchRef.current?.();
+      closeModal();
+    } catch (error) {
+      setModalError(error instanceof Error ? error.message : "Abo konnte nicht gespeichert werden.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDeleteAboConfirm = async () => {
+    if (!selectedAbo?.id) return;
+    try {
+      setIsSaving(true);
+      setModalError(null);
+      await trpcClient.abonnements.delete.mutate({ id: selectedAbo.id });
+      abonnementsRefetchRef.current?.();
+      closeModal();
+    } catch (error) {
+      setModalError(error instanceof Error ? error.message : "Abo konnte nicht geloescht werden.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleStartScan = () => {
+    setActiveModal("processing-receipt");
+    window.setTimeout(() => setActiveModal("post-scan-expense"), 900);
+  };
+
+  const handleReceiptFileSelected = async (file: File) => {
+    try {
+      setIsSaving(true);
+      setModalError(null);
+      setActiveModal("processing-receipt");
+
+      const formData = new FormData();
+      formData.append("receipt", file);
+
+      const uploadResponse = await fetch("/api/receipts/upload", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+
+      if (!uploadResponse.ok) {
+        const errorBody = await uploadResponse.json().catch(() => null);
+        throw new Error(errorBody?.error ?? "Receipt upload failed.");
+      }
+
+      const upload = (await uploadResponse.json()) as { id: string };
+      const ocr = await trpcClient.receipt.processOcr.mutate({ receiptId: upload.id });
+
+      setScanDraft({
+        titel: file.name.replace(/\.[^.]+$/, "") || "Gescanntes Receipt",
+        betrag: Number(ocr.extractedAmount ?? 1),
+        datum: new Date().toISOString(),
+        kategorie: "Sonstiges",
+        beschreibung: ocr.ocrText ? `OCR Text:\n${ocr.ocrText.slice(0, 500)}` : "Aus Receipt-Scan erstellt.",
+      });
+      setActiveModal("post-scan-expense");
+    } catch (error) {
+      setModalError(error instanceof Error ? error.message : "Receipt konnte nicht verarbeitet werden.");
+      setActiveModal("scan-receipt");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -96,7 +208,20 @@ export default function App() {
           />
         );
       case "abonements":
-        return <Abonements />;
+        return (
+          <Abonements
+            onAddAbo={() => setActiveModal("new-abo")}
+            onEditAbo={(abo) => {
+              setSelectedAbo(abo);
+              setActiveModal("new-abo");
+            }}
+            onDeleteAbo={(abo) => {
+              setSelectedAbo(abo);
+              setActiveModal("delete-abo");
+            }}
+            refetchRef={abonnementsRefetchRef}
+          />
+        );
       case "ai-tips":
         return <AiTipps />;
       default:
@@ -129,34 +254,81 @@ export default function App() {
         onClose={closeModal}
         title={selectedExpense ? "Ausgabe bearbeiten" : "Ausgabe hinzufuegen"}
       >
-        <div className="px-8 pb-8 text-sm text-on-surface-variant">
-          Das Formular fuer Ausgaben ist noch nicht angebunden.
-        </div>
+        {modalError ? <ModalError message={modalError} /> : null}
+        <AddExpenseModal
+          initialData={selectedExpense}
+          isSaving={isSaving}
+          onClose={closeModal}
+          onScan={() => setActiveModal("scan-receipt")}
+          onSave={handleSaveExpense}
+        />
       </Modal>
 
-      <Modal isOpen={activeModal === "delete-expense"} onClose={closeModal} title="Ausgabe loeschen?">
-        <div className="space-y-6 px-8 pb-8">
-          <p className="text-sm text-on-surface-variant">
-            {selectedExpense?.titel ?? "Diese Ausgabe"} wird dauerhaft geloescht.
-          </p>
-          <div className="flex justify-end gap-3">
-            <button
-              type="button"
-              onClick={closeModal}
-              className="rounded-lg border border-outline-variant/20 px-4 py-2 text-sm font-semibold text-on-surface-variant"
-            >
-              Abbrechen
-            </button>
-            <button
-              type="button"
-              onClick={handleDeleteExpenseConfirm}
-              className="rounded-lg bg-error px-4 py-2 text-sm font-semibold text-white"
-            >
-              Loeschen
-            </button>
-          </div>
-        </div>
+      <Modal isOpen={activeModal === "new-abo"} onClose={closeModal} title={selectedAbo ? "Abo bearbeiten" : "Neues Abo"}>
+        {modalError ? <ModalError message={modalError} /> : null}
+        <NewAboModal initialData={selectedAbo} isSaving={isSaving} onClose={closeModal} onSave={handleSaveAbo} />
       </Modal>
+
+      <Modal isOpen={activeModal === "scan-receipt"} onClose={closeModal} title="Scan Receipt">
+        {modalError ? <ModalError message={modalError} /> : null}
+        <ScanReceiptModal
+          onClose={closeModal}
+          onStartScan={handleStartScan}
+          onFileSelected={handleReceiptFileSelected}
+        />
+      </Modal>
+
+      <Modal isOpen={activeModal === "processing-receipt"} onClose={closeModal} showClose={false}>
+        <ProcessingState />
+      </Modal>
+
+      <Modal isOpen={activeModal === "post-scan-expense"} onClose={closeModal} showClose={false}>
+        <PostScanModal
+          onClose={closeModal}
+          onRescan={() => setActiveModal("scan-receipt")}
+          onSave={() =>
+            handleSaveExpense(
+              scanDraft ?? {
+                titel: "Gescanntes Receipt",
+                betrag: 1,
+                datum: new Date().toISOString(),
+                kategorie: "Sonstiges",
+                beschreibung: "Aus Receipt-Scan erstellt.",
+              },
+            )
+          }
+        />
+      </Modal>
+
+      <Modal isOpen={activeModal === "delete-expense"} onClose={closeModal}>
+        {modalError ? <ModalError message={modalError} /> : null}
+        <DeleteConfirmModal
+          type="expense"
+          item={selectedExpense}
+          isWorking={isSaving}
+          onClose={closeModal}
+          onConfirm={handleDeleteExpenseConfirm}
+        />
+      </Modal>
+
+      <Modal isOpen={activeModal === "delete-abo"} onClose={closeModal}>
+        {modalError ? <ModalError message={modalError} /> : null}
+        <DeleteConfirmModal
+          type="abo"
+          item={selectedAbo}
+          isWorking={isSaving}
+          onClose={closeModal}
+          onConfirm={handleDeleteAboConfirm}
+        />
+      </Modal>
+    </div>
+  );
+}
+
+function ModalError({ message }: { message: string }) {
+  return (
+    <div className="mx-8 mb-4 rounded-lg border border-error/30 bg-error/10 px-4 py-3 text-sm font-medium text-error">
+      {message}
     </div>
   );
 }
