@@ -6,11 +6,10 @@ import { prisma } from "./prisma.js";
 
 if (!process.env.BETTER_AUTH_SECRET || process.env.BETTER_AUTH_SECRET.length < 32) {
   console.warn(
-    "[auth] BETTER_AUTH_SECRET must be set and at least 32 characters (openssl rand -base64 32)"
+    "[auth] BETTER_AUTH_SECRET must be set and at least 32 characters (openssl rand -base64 32)",
   );
 }
 
-// Password reset: POST …/auth/request-password-reset, then …/auth/reset-password (Better Auth).
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",

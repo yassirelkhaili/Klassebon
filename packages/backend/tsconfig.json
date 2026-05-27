@@ -5,7 +5,12 @@
     "outDir": "./dist",
     "noEmit": false,
     "module": "NodeNext",
-    "moduleResolution": "NodeNext"
+    "moduleResolution": "NodeNext",
+    "paths": {
+      "@klassebon/shared": [
+        "../shared/dist/index.d.ts"
+      ]
+    }
   },
   "include": [
     "src/**/*"

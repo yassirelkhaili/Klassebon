@@ -82,6 +82,15 @@ export function createApp(): Express {
   expressApp.all(`${api_prefix}/auth/*`, toNodeHandler(auth));
 }
 
+function useCors(expressApp: Express): void {
+  expressApp.use(cors({
+    origin: process.env.NODE_ENV === "production" 
+      ? process.env.FRONTEND_URL || "https://klassebon.app"
+      : ["http://localhost:5173", "http://localhost:3000"],
+    credentials: true,
+  }));
+}
+
 function useJsonBodyParser(expressApp: Express): void {
   expressApp.use(express.json());
 }
@@ -117,6 +126,9 @@ export function createApp(): Express {
   const expressInstance = express();
   const openApiDocument = buildOpenApiSpec();
 
+  // CORS must be applied first, before any routes
+  useCors(expressInstance);
+  
   mountBetterAuthBeforeJson(expressInstance);
   useJsonBodyParser(expressInstance);
   mountOpenApiAndDocs(expressInstance, openApiDocument);

@@ -131,17 +131,6 @@ klassebon/
 
 ## Scripts
 
-<<<<<<< HEAD
-| Command                                  | Description                     |
-| ---------------------------------------- | ------------------------------- |
-| `npm run dev`                            | Start frontend and backend      |
-| `npm run dev:frontend`                   | Start frontend only (port 5173) |
-| `npm run dev:backend`                    | Start backend only (port 3000)  |
-| `npm run build`                          | Build all packages              |
-| `npm run db:push --workspace=backend`    | Push Prisma schema to DB        |
-| `npm run db:migrate --workspace=backend` | Run Prisma migrations           |
-| `npm run db:studio --workspace=backend`  | Open Prisma Studio              |
-
 | Command               | Description                          |
 |-----------------------|--------------------------------------|
 | `npm run dev`         | Start frontend and backend           |
@@ -153,7 +142,15 @@ klassebon/
 | `npm run db:studio --workspace=backend`  | Open Prisma Studio      |
 | `npm run test --workspace=backend`       | Run backend unit tests  |
 | `npm run test:watch --workspace=backend` | Tests im Watch-Modus    |
->>>>>>> Andrzej
+| Command                                  | Description                     |
+| ---------------------------------------- | ------------------------------- |
+| `npm run dev`                            | Start frontend and backend      |
+| `npm run dev:frontend`                   | Start frontend only (port 5173) |
+| `npm run dev:backend`                    | Start backend only (port 3000)  |
+| `npm run build`                          | Build all packages              |
+| `npm run db:push --workspace=backend`    | Push Prisma schema to DB        |
+| `npm run db:migrate --workspace=backend` | Run Prisma migrations           |
+| `npm run db:studio --workspace=backend`  | Open Prisma Studio              |
 
 ---
 

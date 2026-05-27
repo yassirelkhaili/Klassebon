@@ -8,28 +8,28 @@ import { spartippsRouter } from "./routers/spartipps.js";
 import { dashboardRouter } from "./routers/dashboard.js";
 
 export const appRouter = router({
-	health: publicProcedure.query(() => ({
-		ok: true as const,
-		service: "backend",
-		trpc: true as const,
-	})),
+  health: publicProcedure.query(() => ({
+    ok: true as const,
+    service: "backend",
+    trpc: true as const,
+  })),
 
-	me: protectedProcedure.query(({ ctx }) => ({
-		user: ctx.user,
-	})),
+  me: protectedProcedure.query(({ ctx }) => ({
+    user: ctx.user,
+  })),
 
-	hello: publicProcedure
-		.input(z.object({ name: z.string().optional() }))
-		.query(({ input }) => ({
-			greeting: `Hello, ${input.name ?? "world"}!`,
-		})),
+  hello: publicProcedure
+    .input(z.object({ name: z.string().optional() }))
+    .query(({ input }) => ({
+      greeting: `Hello, ${input.name ?? "world"}!`,
+    })),
 
-	receipt: receiptRouter,
-	ausgaben: ausgabenRouter,
-	abonnements: abonnementsRouter,
-	monatskosten: monatskostenRouter,
-	spartipps: spartippsRouter,
-	dashboard: dashboardRouter,
+  receipt: receiptRouter,
+  ausgaben: ausgabenRouter,
+  abonnements: abonnementsRouter,
+  monatskosten: monatskostenRouter,
+  spartipps: spartippsRouter,
+  dashboard: dashboardRouter,
 });
 
 export type AppRouter = typeof appRouter;

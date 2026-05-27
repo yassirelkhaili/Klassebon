@@ -1,153 +1,162 @@
-import {
-  BrowserRouter,
-  Navigate,
-  Route,
-  Routes,
-  useLocation,
-  useNavigate,
-} from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
-import { Layout } from "./components/shared/Layout";
+import Modal from "./components/Modal";
+import Sidebar from "./components/Sidebar";
+import { authClient, Login, Register, ResetPassword } from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
-import { Expenses } from "./pages/Expenses";
-import Abonements from "./pages/Abonement";
-import { AiTips } from "./pages/AiTips";
-import { Login, Register, ResetPassword, ForgotPassword } from "./pages/Auth";
-import type { View } from "./types";
+import { default as Abonements } from "./pages/Abonement";
+import AiTipps from "./pages/AiTipps";
+import Expenses from "./pages/Expenses";
+import { trpcClient } from "./lib/trpc";
+import type { Expense, ModalType, View } from "./types";
 
-function AnimatedRoutes() {
-  const location = useLocation();
-  const navigate = useNavigate();
+export default function App() {
+  const [currentView, setCurrentView] = useState<View | "loading">("loading");
+  const [activeModal, setActiveModal] = useState<ModalType | null>(null);
+  const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
 
-  const handleNavigate = (view: View) => {
-    const pathMap: Partial<Record<View, string>> = {
-      login: "/login",
-      register: "/register",
-      "forgot-password": "/forgot-password",
-      "reset-password": "/reset-password",
-      dashboard: "/dashboard",
-    };
+  const expensesRefetchRef = useRef<(() => void) | null>(null);
 
-    const nextPath = pathMap[view];
-    if (nextPath) {
-      navigate(nextPath);
+  useEffect(() => {
+    authClient
+      .getSession()
+      .then((result) => {
+        setCurrentView(result?.data?.user ? "dashboard" : "login");
+      })
+      .catch(() => {
+        setCurrentView("login");
+      });
+  }, []);
+
+  const handleNavigate = (view: View) => setCurrentView(view);
+
+  const closeModal = () => {
+    setActiveModal(null);
+    setSelectedExpense(null);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await authClient.signOut();
+    } finally {
+      closeModal();
+      setCurrentView("login");
+    }
+  };
+
+  const handleDeleteExpenseConfirm = async () => {
+    if (!selectedExpense?.id) return;
+
+    try {
+      await trpcClient.ausgaben.delete.mutate({ id: selectedExpense.id });
+      expensesRefetchRef.current?.();
+    } finally {
+      closeModal();
+    }
+  };
+
+  const isAuthView = ["login", "register", "forgot-password", "reset-password", "loading"].includes(
+    currentView,
+  );
+
+  const renderView = () => {
+    switch (currentView) {
+      case "loading":
+        return (
+          <div className="flex min-h-screen items-center justify-center bg-background">
+            <div className="flex flex-col items-center gap-4">
+              <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              <p className="text-sm uppercase tracking-widest text-on-surface-variant">Laden...</p>
+            </div>
+          </div>
+        );
+      case "login":
+        return <Login onNavigate={handleNavigate} />;
+      case "register":
+        return <Register onNavigate={handleNavigate} />;
+      case "forgot-password":
+      case "reset-password":
+        return <ResetPassword onNavigate={handleNavigate} />;
+      case "dashboard":
+        return <Dashboard />;
+      case "expenses":
+        return (
+          <Expenses
+            onAddExpense={() => setActiveModal("add-expense")}
+            onEditExpense={(expense) => {
+              setSelectedExpense(expense);
+              setActiveModal("add-expense");
+            }}
+            onDeleteExpense={(expense) => {
+              setSelectedExpense(expense);
+              setActiveModal("delete-expense");
+            }}
+            refetchRef={expensesRefetchRef}
+          />
+        );
+      case "abonements":
+        return <Abonements />;
+      case "ai-tips":
+        return <AiTipps />;
+      default:
+        return <Login onNavigate={handleNavigate} />;
     }
   };
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={location.pathname}
-        initial={{ opacity: 0, x: 10 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: -10 }}
-        transition={{ duration: 0.2 }}
+    <div className="min-h-screen bg-background text-on-background antialiased">
+      {!isAuthView ? (
+        <Sidebar currentView={currentView as View} onNavigate={handleNavigate} onLogout={handleLogout} />
+      ) : null}
+
+      <main className={!isAuthView ? "ml-64 min-h-screen" : ""}>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentView}
+            initial={{ opacity: 0, x: 10 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -10 }}
+            transition={{ duration: 0.2 }}
+          >
+            {renderView()}
+          </motion.div>
+        </AnimatePresence>
+      </main>
+
+      <Modal
+        isOpen={activeModal === "add-expense"}
+        onClose={closeModal}
+        title={selectedExpense ? "Ausgabe bearbeiten" : "Ausgabe hinzufuegen"}
       >
-        <Routes location={location}>
-          <Route path="/" element={<Navigate to="/login" replace />} />
+        <div className="px-8 pb-8 text-sm text-on-surface-variant">
+          Das Formular fuer Ausgaben ist noch nicht angebunden.
+        </div>
+      </Modal>
 
-          <Route path="/login" element={<Login onNavigate={handleNavigate} />} />
-          <Route path="/register" element={<Register onNavigate={handleNavigate} />} />
-          <Route path="/forgot-password" element={<ForgotPassword onNavigate={handleNavigate} />} />
-          <Route path="/reset-password" element={<ResetPassword onNavigate={handleNavigate} />} />
-
-          <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
-          <Route path="/expenses" element={<Layout><Expenses /></Layout>} />
-          <Route path="/abonements" element={<Layout><Abonements /></Layout>} />
-          <Route path="/ai-tips" element={<Layout><AiTips /></Layout>} />
-
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        </Routes>
-      </motion.div>
-    </AnimatePresence>
+      <Modal isOpen={activeModal === "delete-expense"} onClose={closeModal} title="Ausgabe loeschen?">
+        <div className="space-y-6 px-8 pb-8">
+          <p className="text-sm text-on-surface-variant">
+            {selectedExpense?.titel ?? "Diese Ausgabe"} wird dauerhaft geloescht.
+          </p>
+          <div className="flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={closeModal}
+              className="rounded-lg border border-outline-variant/20 px-4 py-2 text-sm font-semibold text-on-surface-variant"
+            >
+              Abbrechen
+            </button>
+            <button
+              type="button"
+              onClick={handleDeleteExpenseConfirm}
+              className="rounded-lg bg-error px-4 py-2 text-sm font-semibold text-white"
+            >
+              Loeschen
+            </button>
+          </div>
+        </div>
+      </Modal>
+    </div>
   );
 }
-
-export default function App() {
-  return (
-    <BrowserRouter>
-      <AnimatedRoutes />
-    </BrowserRouter>
-  );
-}
-
-
-
-
-/*import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
-
-import { Layout } from "./components/shared/Layout";
-import { Dashboard } from "./pages/Dashboard"; 
-import { Expenses } from "./pages/Expenses";
-import { Subscriptions } from "./pages/Subscriptions";
-import { AiTips } from "./pages/AiTips";
-import { Login, Register, ResetPassword, ForgotPassword } from "./pages/Auth";
-import type { View } from "./types";
-
-function AnimatedRoutes() {
-  const location = useLocation();
-
-  return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={location.pathname}
-        initial={{ opacity: 0, x: 10 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: -10 }}
-        transition={{ duration: 0.2 }}
-      >
-        <Routes location={location}>
-          <Route path="/" element={<Navigate to="/login" replace />} />
-
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-
-          <Route
-            path="/dashboard"
-            element={
-              <Layout>
-                <Dashboard />
-              </Layout>
-            }
-          />
-          <Route
-            path="/expenses"
-            element={
-              <Layout>
-                <Expenses />
-              </Layout>
-            }
-          />
-          <Route
-            path="/subscriptions"
-            element={
-              <Layout>
-                <Subscriptions />
-              </Layout>
-            }
-          />
-          <Route
-            path="/ai-tips"
-            element={
-              <Layout>
-                <AiTips />
-              </Layout>
-            }
-          />
-        </Routes>
-      </motion.div>
-    </AnimatePresence>
-  );
-}
-
-export default function App() {
-  return (
-    <BrowserRouter>
-      <AnimatedRoutes />
-    </BrowserRouter>
-  );
-}*/
