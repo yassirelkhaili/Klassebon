@@ -37,13 +37,19 @@ function getTipIcon(index: number) {
 
 /**
  * Parse the raw numbered-list string from Ollama into individual tip strings.
- * Expects format: "1. tip one\n2. tip two\n3. tip three"
+ * Handles formats: "1. tip", "**1. tip**", inline numbers after preamble text.
  */
 function parseTipps(raw: string): string[] {
-  return raw
+  // Normalize: move **N. inline markers onto their own line, strip remaining **
+  const normalized = raw
+    .replace(/\*\*(\d+\.)/g, "\n$1")
+    .replace(/\*\*/g, "");
+
+  return normalized
     .split(/\n(?=\d+\.)/)
+    .filter((s) => /^\d+\./.test(s))
     .map((s) => s.replace(/^\d+\.\s*/, "").trim())
-    .filter(Boolean);
+    .filter((s) => s.length > 10);
 }
 
 // ── Component ────────────────────────────────────────────────────────────────
