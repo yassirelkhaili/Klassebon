@@ -146,16 +146,16 @@ describe("receipt.processOcr", () => {
     mockPrisma.receipt.update.mockResolvedValue({
       id: "r1",
       ocrText: "REWE\nMilch 1,99\nGesamt 1,99",
-      extractedAmount: null,
-      extractedCategory: null,
+      extractedAmount: 1.99,
+      extractedCategory: "LEBENSMITTEL",
     });
 
     const ctx = makeCtx({ prisma: mockPrisma });
     const result = await caller(ctx).receipt.processOcr({ receiptId: "r1" });
 
     expect(result.alreadyProcessed).toBe(false);
-    expect(result.extractedAmount).toBeNull();
-    expect(result.extractedCategory).toBeNull();
+    expect(result.extractedAmount).toBe(1.99);
+    expect(result.extractedCategory).toBe("LEBENSMITTEL");
     expect(result.ocrText).toContain("REWE");
   });
 

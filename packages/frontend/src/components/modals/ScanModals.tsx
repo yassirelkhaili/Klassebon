@@ -1,5 +1,6 @@
-import { useRef, type ChangeEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { Scan, ShieldCheck, ArrowRight, X, FileText, CheckCircle2, RefreshCw, Sparkles } from "lucide-react";
+import type { ExpenseFormValues } from "./AddExpense";
 
 interface ScanReceiptModalProps {
   onClose: () => void;
@@ -111,10 +112,46 @@ export function ProcessingState() {
 interface PostScanModalProps {
   onClose: () => void;
   onRescan: () => void;
-  onSave: () => void;
+  onSave: (values: ExpenseFormValues) => void;
+  draft?: ExpenseFormValues | null;
 }
 
-export function PostScanModal({ onClose, onRescan, onSave }: PostScanModalProps) {
+type Kategorie = NonNullable<ExpenseFormValues["kategorie"]>;
+
+const postScanCategories: Kategorie[] = ["Lebensmittel", "Transport", "Versicherung", "Streaming", "Sonstiges"];
+
+const toDateInput = (value?: string | null) => {
+  if (!value) return new Date().toISOString().slice(0, 10);
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? new Date().toISOString().slice(0, 10) : date.toISOString().slice(0, 10);
+};
+
+export function PostScanModal({ onClose, onRescan, onSave, draft }: PostScanModalProps) {
+  const [titel, setTitel] = useState(draft?.titel ?? "Gescanntes Receipt");
+  const [kategorie, setKategorie] = useState<Kategorie>(draft?.kategorie ?? "Sonstiges");
+  const [datum, setDatum] = useState(toDateInput(draft?.datum));
+  const [betrag, setBetrag] = useState(String(draft?.betrag ?? ""));
+  const [beschreibung, setBeschreibung] = useState(draft?.beschreibung ?? "");
+
+  useEffect(() => {
+    if (!draft) return;
+    setTitel(draft.titel);
+    setKategorie(draft.kategorie ?? "Sonstiges");
+    setDatum(toDateInput(draft.datum));
+    setBetrag(String(draft.betrag));
+    setBeschreibung(draft.beschreibung ?? "");
+  }, [draft]);
+
+  const handleSave = () => {
+    onSave({
+      titel: titel.trim() || "Gescanntes Receipt",
+      betrag: Number(betrag.replace(",", ".")) || 1,
+      datum: new Date(`${datum}T00:00:00.000Z`).toISOString(),
+      kategorie,
+      beschreibung: beschreibung.trim() || undefined,
+    });
+  };
+
   return (
     <div className="flex flex-col">
       <div className="border-b border-white/5 px-5 pt-5 pb-4 sm:px-6">
@@ -146,7 +183,8 @@ export function PostScanModal({ onClose, onRescan, onSave }: PostScanModalProps)
           <input
             className="w-full bg-surface-container-highest border-0 rounded-lg px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary transition-all font-medium"
             type="text"
-            defaultValue="Whole Foods"
+            value={titel}
+            onChange={(event) => setTitel(event.target.value)}
           />
         </div>
 
@@ -158,11 +196,16 @@ export function PostScanModal({ onClose, onRescan, onSave }: PostScanModalProps)
                 <Sparkles className="w-3 h-3" /> OCR
               </span>
             </div>
-            <select className="w-full bg-surface-container-highest border-0 rounded-lg px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary appearance-none cursor-pointer font-medium">
-              <option selected>Food</option>
-              <option>Transportation</option>
-              <option>Utilities</option>
-              <option>Entertainment</option>
+            <select
+              className="w-full bg-surface-container-highest border-0 rounded-lg px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary appearance-none cursor-pointer font-medium"
+              value={kategorie}
+              onChange={(event) => setKategorie(event.target.value as Kategorie)}
+            >
+              {postScanCategories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
             </select>
           </div>
           <div className="space-y-2">
@@ -174,8 +217,9 @@ export function PostScanModal({ onClose, onRescan, onSave }: PostScanModalProps)
             </div>
             <input
               className="w-full bg-surface-container-highest border-0 rounded-lg px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary font-medium"
-              type="text"
-              defaultValue="Oct 15, 2024"
+              type="date"
+              value={datum}
+              onChange={(event) => setDatum(event.target.value)}
             />
           </div>
         </div>
@@ -193,11 +237,21 @@ export function PostScanModal({ onClose, onRescan, onSave }: PostScanModalProps)
             </span>
             <input
               className="w-full bg-surface-container-highest border-0 rounded-lg pl-10 pr-4 py-4 text-on-surface focus:ring-2 focus:ring-primary font-headline text-2xl font-bold tracking-tight"
+              inputMode="decimal"
+              pattern="[0-9]*[.,]?[0-9]*"
               type="text"
-              defaultValue="42.80"
+              value={betrag}
+              onChange={(event) => setBetrag(event.target.value)}
             />
           </div>
         </div>
+
+        <textarea
+          className="w-full resize-none rounded-lg border-0 bg-surface-container-highest px-4 py-3 text-sm text-on-surface transition-all focus:ring-2 focus:ring-primary"
+          rows={3}
+          value={beschreibung}
+          onChange={(event) => setBeschreibung(event.target.value)}
+        />
 
         <div className="p-3 rounded-lg bg-secondary-container/10 flex items-center gap-3">
           <ShieldCheck className="text-secondary w-5 h-5 fill-secondary/20" />
@@ -223,7 +277,7 @@ export function PostScanModal({ onClose, onRescan, onSave }: PostScanModalProps)
             Cancel
           </button>
           <button
-            onClick={onSave}
+            onClick={handleSave}
             className="bg-gradient-to-r from-primary-container to-primary px-8 py-2.5 rounded-full text-on-primary font-bold text-sm shadow-lg shadow-primary-container/20 hover:brightness-110 active:scale-[0.98] transition-all"
           >
             Save Expense

@@ -6,7 +6,7 @@ import Sidebar from "./components/Sidebar";
 import AddExpenseModal, { type ExpenseFormValues } from "./components/modals/AddExpense";
 import { DeleteConfirmModal, NewAboModal, type AboFormValues } from "./components/modals/ActionAbonements";
 import { PostScanModal, ProcessingState, ScanReceiptModal } from "./components/modals/ScanModals";
-import { authClient, Login, Register, ResetPassword } from "./pages/Auth";
+import { authClient, ForgotPassword, Login, Register, ResetPassword } from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Abonements from "./pages/Abonements";
 import AiTipps from "./pages/AiTipps";
@@ -14,8 +14,36 @@ import Expenses from "./pages/Expenses";
 import { trpcClient } from "./lib/trpc";
 import type { Abonement, Expense, ModalType, View } from "./types";
 
+const mapReceiptCategory = (category?: string | null): ExpenseFormValues["kategorie"] => {
+  switch (category) {
+    case "LEBENSMITTEL":
+      return "Lebensmittel";
+    case "TRANSPORT":
+      return "Transport";
+    case "VERSICHERUNG":
+      return "Versicherung";
+    case "STREAMING":
+      return "Streaming";
+    default:
+      return "Sonstiges";
+  }
+};
+
+function getViewFromPath(pathname: string): View | "loading" {
+  switch (pathname) {
+    case "/register":
+      return "register";
+    case "/forgot-password":
+      return "forgot-password";
+    case "/reset-password":
+      return "reset-password";
+    default:
+      return "loading";
+  }
+}
+
 export default function App() {
-  const [currentView, setCurrentView] = useState<View | "loading">("loading");
+  const [currentView, setCurrentView] = useState<View | "loading">(() => getViewFromPath(window.location.pathname));
   const [activeModal, setActiveModal] = useState<ModalType | null>(null);
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
   const [selectedAbo, setSelectedAbo] = useState<Abonement | null>(null);
@@ -30,14 +58,45 @@ export default function App() {
     authClient
       .getSession()
       .then((result) => {
+        const pathView = getViewFromPath(window.location.pathname);
+        if (pathView !== "loading") {
+          setCurrentView(pathView);
+          return;
+        }
+
         setCurrentView(result?.data?.user ? "dashboard" : "login");
       })
       .catch(() => {
-        setCurrentView("login");
+        const pathView = getViewFromPath(window.location.pathname);
+        setCurrentView(pathView === "loading" ? "login" : pathView);
       });
   }, []);
 
-  const handleNavigate = (view: View) => setCurrentView(view);
+  useEffect(() => {
+    const handlePopState = () => {
+      const pathView = getViewFromPath(window.location.pathname);
+      setCurrentView(pathView === "loading" ? "login" : pathView);
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  const handleNavigate = (view: View) => {
+    setCurrentView(view);
+
+    const pathMap: Partial<Record<View, string>> = {
+      login: "/",
+      register: "/register",
+      "forgot-password": "/forgot-password",
+      "reset-password": "/reset-password",
+    };
+
+    const nextPath = pathMap[view];
+    if (nextPath && window.location.pathname !== nextPath) {
+      window.history.pushState({}, "", nextPath);
+    }
+  };
 
   const closeModal = () => {
     setActiveModal(null);
@@ -156,7 +215,7 @@ export default function App() {
         titel: file.name.replace(/\.[^.]+$/, "") || "Gescanntes Receipt",
         betrag: Number(ocr.extractedAmount ?? 1),
         datum: new Date().toISOString(),
-        kategorie: "Sonstiges",
+        kategorie: mapReceiptCategory(ocr.extractedCategory),
         beschreibung: ocr.ocrText ? `OCR Text:\n${ocr.ocrText.slice(0, 500)}` : "Aus Receipt-Scan erstellt.",
       });
       setActiveModal("post-scan-expense");
@@ -186,6 +245,7 @@ export default function App() {
       case "register":
         return <Register onNavigate={handleNavigate} />;
       case "forgot-password":
+        return <ForgotPassword onNavigate={handleNavigate} />;
       case "reset-password":
         return <ResetPassword onNavigate={handleNavigate} />;
       case "dashboard":
@@ -286,19 +346,10 @@ export default function App() {
 
       <Modal isOpen={activeModal === "post-scan-expense"} onClose={closeModal} showClose={false}>
         <PostScanModal
+          draft={scanDraft}
           onClose={closeModal}
           onRescan={() => setActiveModal("scan-receipt")}
-          onSave={() =>
-            handleSaveExpense(
-              scanDraft ?? {
-                titel: "Gescanntes Receipt",
-                betrag: 1,
-                datum: new Date().toISOString(),
-                kategorie: "Sonstiges",
-                beschreibung: "Aus Receipt-Scan erstellt.",
-              },
-            )
-          }
+          onSave={handleSaveExpense}
         />
       </Modal>
 

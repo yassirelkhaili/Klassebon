@@ -4,6 +4,57 @@ import { protectedProcedure, router } from "../trpc.js";
 import { processReceipt } from "../../services/ocr.js";
 import type { Category } from "../../generated/prisma/client.js";
 
+function normalizeOcrNumber(value: string): number | null {
+  const compact = value.replace(/\s/g, "");
+  const lastComma = compact.lastIndexOf(",");
+  const lastDot = compact.lastIndexOf(".");
+  const decimalSeparator = lastComma > lastDot ? "," : ".";
+  const normalized =
+    decimalSeparator === "," ? compact.replace(/\./g, "").replace(",", ".") : compact.replace(/,/g, "");
+  const amount = Number(normalized);
+
+  return Number.isFinite(amount) && amount > 0 ? amount : null;
+}
+
+function extractAmountFromText(rawText: string): number | null {
+  const amountPattern = /\b\d{1,4}(?:[.,]\d{3})*[.,]\d{2}\b|\b\d+[.,]\d{2}\b/g;
+  const lines = rawText
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const totalKeywords = /(gesamt|summe|total|betrag|zu zahlen|kartenzahlung|eur|euro)/i;
+
+  const candidates = lines.flatMap((line, lineIndex) =>
+    [...line.matchAll(amountPattern)]
+      .map((match) => normalizeOcrNumber(match[0]))
+      .filter((amount): amount is number => amount !== null)
+      .map((amount) => ({
+        amount,
+        score: (totalKeywords.test(line) ? 100 : 0) + lineIndex,
+      })),
+  );
+
+  if (candidates.length === 0) return null;
+
+  return candidates.sort((a, b) => b.score - a.score || b.amount - a.amount)[0].amount;
+}
+
+function extractCategoryFromText(rawText: string): Category {
+  const text = rawText.toLowerCase();
+  const rules: Array<{ category: Category; keywords: string[] }> = [
+    {
+      category: "LEBENSMITTEL",
+      keywords: ["rewe", "edeka", "aldi", "lidl", "penny", "netto", "kaufland", "supermarkt", "markt"],
+    },
+    { category: "TRANSPORT", keywords: ["bahn", "db", "bvg", "ticket", "tank", "shell", "aral", "esso"] },
+    { category: "STREAMING", keywords: ["netflix", "spotify", "prime", "disney", "youtube"] },
+    { category: "GESUNDHEIT", keywords: ["apotheke", "arzt", "dm", "rossmann"] },
+    { category: "FREIZEIT", keywords: ["kino", "cinema", "restaurant", "cafe", "bar"] },
+  ];
+
+  return rules.find((rule) => rule.keywords.some((keyword) => text.includes(keyword)))?.category ?? "SONSTIGES";
+}
+
 export const receiptRouter = router({
   /**
    * Andrej: raw OCR text for your pipeline is `processReceipt(...).rawText` (see `services/ocr.ts`)
@@ -31,8 +82,8 @@ export const receiptRouter = router({
 
     const result = await processReceipt(receipt.imagePath);
 
-    const extractedAmount: number | null = null;
-    const extractedCategory: Category | null = null;
+    const extractedAmount = extractAmountFromText(result.rawText);
+    const extractedCategory = extractCategoryFromText(result.rawText);
 
     const updated = await ctx.prisma.receipt.update({
       where: { id: receipt.id },
