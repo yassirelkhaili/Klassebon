@@ -18,6 +18,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { trpcClient } from "../lib/trpc";
+import { View } from "../types.ts";
 
 // ── Types inferred from backend return shapes ────────────────────────────────
 
@@ -57,6 +58,12 @@ type AboSummary = {
   aktiv: boolean;
 };
 
+// ── Props ────────────────────────────────────────────────────────────────────
+
+interface DashboardProps {
+  onNavigate: (view: View) => void;
+}
+
 // ── Donut chart colours per category ────────────────────────────────────────
 
 const KATEGORIE_COLORS: Record<string, string> = {
@@ -95,7 +102,7 @@ function turnus(t: string): string {
 
 // ── Component ────────────────────────────────────────────────────────────────
 
-export default function Dashboard() {
+export default function Dashboard({ onNavigate }: DashboardProps) {
   const now = new Date();
   const [monat, setMonat] = useState(now.getMonth() + 1);
   const [jahr, setJahr]   = useState(now.getFullYear());
@@ -400,7 +407,10 @@ export default function Dashboard() {
                     Lass dir von unserer lokalen KI personalisierte Spartipps für diesen Monat generieren.
                   </p>
                   <div className="mt-auto">
-                    <button className="w-full py-4 bg-gradient-to-r from-primary-container to-primary text-on-primary font-bold rounded-xl transition-transform active:scale-95 shadow-lg shadow-primary/20">
+                    <button
+                      onClick={() => onNavigate("ai-tips")}
+                      className="w-full py-4 bg-gradient-to-r from-primary-container to-primary text-on-primary font-bold rounded-xl transition-transform active:scale-95 shadow-lg shadow-primary/20"
+                    >
                       Tipps generieren
                     </button>
                   </div>
