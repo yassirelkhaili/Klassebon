@@ -50,6 +50,15 @@ type AboSummary = {
   kategorie?: string | null;
 };
 
+type StoredAiTip = {
+  tip: string;
+  generatedAt: string;
+  monat: number;
+  jahr: number;
+};
+
+const LAST_AI_TIP_STORAGE_KEY = "klassebon:last-ai-tip";
+
 // ── Donut chart colours per category ────────────────────────────────────────
 
 const KATEGORIE_COLORS: Record<string, string> = {
@@ -92,6 +101,27 @@ function turnus(t: string): string {
 
 // ── Component ────────────────────────────────────────────────────────────────
 
+function readStoredAiTip(): StoredAiTip | null {
+  try {
+    const raw = localStorage.getItem(LAST_AI_TIP_STORAGE_KEY);
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw) as Partial<StoredAiTip>;
+    if (
+      typeof parsed.tip !== "string" ||
+      typeof parsed.generatedAt !== "string" ||
+      typeof parsed.monat !== "number" ||
+      typeof parsed.jahr !== "number"
+    ) {
+      return null;
+    }
+
+    return parsed as StoredAiTip;
+  } catch {
+    return null;
+  }
+}
+
 export default function Dashboard() {
   const now = new Date();
   const [monat, setMonat] = useState(now.getMonth() + 1);
@@ -106,6 +136,7 @@ export default function Dashboard() {
   // all field access goes through dashboardData?.field
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [abos, setAbos] = useState<AboSummary[]>([]);
+  const [lastAiTip, setLastAiTip] = useState<StoredAiTip | null>(() => readStoredAiTip());
 
   // ── Month navigation ──────────────────────────────────────────────
   const handlePrevMonth = () => {
@@ -150,6 +181,18 @@ export default function Dashboard() {
       .finally(() => setLoadingAbos(false));
   }, [monat, jahr]);
 
+  useEffect(() => {
+    const syncLastAiTip = () => setLastAiTip(readStoredAiTip());
+
+    window.addEventListener("storage", syncLastAiTip);
+    window.addEventListener("klassebon:last-ai-tip-updated", syncLastAiTip);
+
+    return () => {
+      window.removeEventListener("storage", syncLastAiTip);
+      window.removeEventListener("klassebon:last-ai-tip-updated", syncLastAiTip);
+    };
+  }, []);
+
   // Derived: spinner while either call is pending
   const isLoading = loadingUebersicht || loadingAbos;
 
@@ -179,6 +222,7 @@ export default function Dashboard() {
         .filter((abo) => abo.aktiv)
         .sort((a, b) => new Date(a.naechsteFaelligkeit ?? 0).getTime() - new Date(b.naechsteFaelligkeit ?? 0).getTime())
         .slice(0, 5);
+  const lastAiTipMonth = lastAiTip ? formatMonthLabel(lastAiTip.monat, lastAiTip.jahr) : null;
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
@@ -387,14 +431,15 @@ export default function Dashboard() {
                     <Sparkles className="w-6 h-6" />
                   </div>
                   <h3 className="font-headline text-2xl font-bold text-on-surface mb-4">KI-Spartipp</h3>
-                  <p className="font-body text-on-surface/80 leading-relaxed mb-8">
-                    Lass dir von unserer lokalen KI personalisierte Spartipps für diesen Monat generieren.
+                  <p className="font-body text-on-surface/80 leading-relaxed mb-6">
+                    {lastAiTip?.tip ??
+                      "Noch keine KI-Spartipps generiert. Erstelle zuerst einen Tipp im Bereich AI Tipps."}
                   </p>
-                  <div className="mt-auto">
-                    <button className="w-full py-4 bg-gradient-to-r from-primary-container to-primary text-on-primary font-bold rounded-xl transition-transform active:scale-95 shadow-lg shadow-primary/20">
-                      Tipps generieren
-                    </button>
-                  </div>
+                  {lastAiTip && (
+                    <p className="mt-auto text-xs font-label uppercase tracking-widest text-on-surface-variant">
+                      {lastAiTipMonth} · {formatDate(lastAiTip.generatedAt)}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

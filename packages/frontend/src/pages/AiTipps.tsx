@@ -20,6 +20,18 @@ import {
 } from "lucide-react";
 import { trpcClient } from "../lib/trpc";
 
+const LAST_AI_TIP_STORAGE_KEY = "klassebon:last-ai-tip";
+const LAST_AI_TIPPS_STATE_STORAGE_KEY = "klassebon:last-ai-tipps-state";
+
+type StoredAiTippsState = {
+  monat: number;
+  jahr: number;
+  tippsRaw: string;
+  generatedAt: string;
+  gesamtkosten: number;
+  highestCategory: string;
+};
+
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatMonthLabel(monat: number, jahr: number): string {
@@ -41,9 +53,7 @@ function getTipIcon(index: number) {
  */
 function parseTipps(raw: string): string[] {
   // Normalize: move **N. inline markers onto their own line, strip remaining **
-  const normalized = raw
-    .replace(/\*\*(\d+\.)/g, "\n$1")
-    .replace(/\*\*/g, "");
+  const normalized = raw.replace(/\*\*(\d+\.)/g, "\n$1").replace(/\*\*/g, "");
 
   return normalized
     .split(/\n(?=\d+\.)/)
@@ -52,26 +62,63 @@ function parseTipps(raw: string): string[] {
     .filter((s) => s.length > 10);
 }
 
+function readStoredAiTippsState(): StoredAiTippsState | null {
+  try {
+    const raw = localStorage.getItem(LAST_AI_TIPPS_STATE_STORAGE_KEY);
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw) as Partial<StoredAiTippsState>;
+    if (
+      typeof parsed.monat !== "number" ||
+      typeof parsed.jahr !== "number" ||
+      typeof parsed.tippsRaw !== "string" ||
+      typeof parsed.generatedAt !== "string" ||
+      typeof parsed.gesamtkosten !== "number" ||
+      typeof parsed.highestCategory !== "string"
+    ) {
+      return null;
+    }
+
+    return parsed as StoredAiTippsState;
+  } catch {
+    return null;
+  }
+}
+
 // ── Component ────────────────────────────────────────────────────────────────
 
 export default function AITipps() {
   const now = new Date();
-  const [monat, setMonat] = useState(now.getMonth() + 1);
-  const [jahr, setJahr] = useState(now.getFullYear());
+  const [storedTippsState] = useState(() => readStoredAiTippsState());
+  const [monat, setMonat] = useState(storedTippsState?.monat ?? now.getMonth() + 1);
+  const [jahr, setJahr] = useState(storedTippsState?.jahr ?? now.getFullYear());
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Tip content
-  const [tippsRaw, setTippsRaw] = useState<string | null>(null);
-  const [lastGenerated, setLastGenerated] = useState<Date | null>(null);
+  const [tippsRaw, setTippsRaw] = useState<string | null>(storedTippsState?.tippsRaw ?? null);
+  const [lastGenerated, setLastGenerated] = useState<Date | null>(
+    storedTippsState ? new Date(storedTippsState.generatedAt) : null,
+  );
 
   // Stat card values
-  const [gesamtkosten, setGesamtkosten] = useState<number | null>(null);
-  const [highestCategory, setHighestCategory] = useState<string>("—");
+  const [gesamtkosten, setGesamtkosten] = useState<number | null>(storedTippsState?.gesamtkosten ?? null);
+  const [highestCategory, setHighestCategory] = useState<string>(storedTippsState?.highestCategory ?? "—");
+
+  const clearGeneratedTippsState = () => {
+    setError(null);
+    setTippsRaw(null);
+    setLastGenerated(null);
+    setGesamtkosten(null);
+    setHighestCategory("—");
+    localStorage.removeItem(LAST_AI_TIPPS_STATE_STORAGE_KEY);
+  };
 
   // ── Month navigation ──────────────────────────────────────────────
   const handlePrevMonth = () => {
+    clearGeneratedTippsState();
+
     if (monat === 1) {
       setMonat(12);
       setJahr((y) => y - 1);
@@ -81,6 +128,8 @@ export default function AITipps() {
   };
 
   const handleNextMonth = () => {
+    clearGeneratedTippsState();
+
     if (monat === 12) {
       setMonat(1);
       setJahr((y) => y + 1);
@@ -104,16 +153,44 @@ export default function AITipps() {
       // use kontext.gesamt labelled as "Gesamtausgaben"
       setGesamtkosten(tipsResult.kontext.gesamt);
       setTippsRaw(tipsResult.spartipps);
-      setLastGenerated(new Date());
+      const generatedAt = new Date();
+      const [firstTip] = parseTipps(tipsResult.spartipps);
+      if (firstTip) {
+        localStorage.setItem(
+          LAST_AI_TIP_STORAGE_KEY,
+          JSON.stringify({
+            tip: firstTip,
+            generatedAt: generatedAt.toISOString(),
+            monat,
+            jahr,
+          }),
+        );
+        window.dispatchEvent(new Event("klassebon:last-ai-tip-updated"));
+      }
+      setLastGenerated(generatedAt);
 
       // filter zeros, check empty before reduce
       const nonZero = kategorienResult.filter((k) => k.betrag > 0);
+      let nextHighestCategory = "—";
       if (nonZero.length === 0) {
         setHighestCategory("—");
       } else {
         const highest = nonZero.reduce((prev, curr) => (curr.betrag > prev.betrag ? curr : prev));
-        setHighestCategory(highest.kategorie);
+        nextHighestCategory = highest.kategorie;
+        setHighestCategory(nextHighestCategory);
       }
+
+      localStorage.setItem(
+        LAST_AI_TIPPS_STATE_STORAGE_KEY,
+        JSON.stringify({
+          monat,
+          jahr,
+          tippsRaw: tipsResult.spartipps,
+          generatedAt: generatedAt.toISOString(),
+          gesamtkosten: tipsResult.kontext.gesamt,
+          highestCategory: nextHighestCategory,
+        }),
+      );
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Fehler beim Generieren der Spartipps. Ist Ollama gestartet?");
     } finally {
