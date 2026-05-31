@@ -43,6 +43,9 @@ export function ScanReceiptModal({ onClose, onStartScan, onFileSelected }: ScanR
             Upload or scan a receipt to automatically extract expense details
           </p>
           <p className="mb-5 text-sm text-on-surface-variant">Supported formats: JPG, PNG, WEBP</p>
+          <div className="mb-5 p-2 rounded-lg bg-error/10 border border-error/20">
+          <p className="text-xs text-error font-medium">📷 For best results: lay receipt flat, good lighting, no angle</p>
+          </div>
           <button
             type="button"
             onClick={(event) => {

@@ -249,7 +249,7 @@ export default function App() {
       case "reset-password":
         return <ResetPassword onNavigate={handleNavigate} />;
       case "dashboard":
-        return <Dashboard />;
+        return <Dashboard onNavigate={handleNavigate} />;
       case "expenses":
         return (
           <Expenses

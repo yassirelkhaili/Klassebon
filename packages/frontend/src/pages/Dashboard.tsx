@@ -9,6 +9,7 @@
 import { useState, useEffect } from "react";
 import { Bell, ShoppingBag, Sparkles, ChevronLeft, ChevronRight, AlertCircle, RefreshCw } from "lucide-react";
 import { trpcClient } from "../lib/trpc";
+import { View } from "../types.ts";
 
 // ── Types inferred from backend return shapes ────────────────────────────────
 
@@ -122,7 +123,11 @@ function readStoredAiTip(): StoredAiTip | null {
   }
 }
 
-export default function Dashboard() {
+interface DashboardProps {
+  onNavigate: (view: View) => void;
+}
+
+export default function Dashboard({ onNavigate }: DashboardProps) {
   const now = new Date();
   const [monat, setMonat] = useState(now.getMonth() + 1);
   const [jahr, setJahr] = useState(now.getFullYear());
@@ -422,24 +427,28 @@ export default function Dashboard() {
               )}
             </div>
 
-            {/* AI tip teaser */}
-            <div className="flex flex-col lg:col-span-4">
-              <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-primary/20 bg-primary-container/10 p-5 shadow-xl sm:p-6 lg:p-8">
+              {/* AI tip teaser */}
+            <div className="col-span-12 lg:col-span-4 flex flex-col">
+              <div className="bg-primary-container/10 border border-primary/20 rounded-xl p-8 h-full flex flex-col relative overflow-hidden group shadow-xl">
                 <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/20 blur-[80px] rounded-full group-hover:bg-primary/30 transition-all duration-700" />
                 <div className="relative z-10 flex flex-col h-full">
                   <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center text-primary mb-6">
                     <Sparkles className="w-6 h-6" />
                   </div>
-                  <h3 className="font-headline text-2xl font-bold text-on-surface mb-4">KI-Spartipp</h3>
-                  <p className="font-body text-on-surface/80 leading-relaxed mb-6">
-                    {lastAiTip?.tip ??
-                      "Noch keine KI-Spartipps generiert. Erstelle zuerst einen Tipp im Bereich AI Tipps."}
+                  <h3 className="font-headline text-2xl font-bold text-on-surface mb-4">
+                    KI-Spartipp
+                  </h3>
+                  <p className="font-body text-on-surface/80 leading-relaxed mb-8">
+                    Lass dir von unserer lokalen KI personalisierte Spartipps für diesen Monat generieren.
                   </p>
-                  {lastAiTip && (
-                    <p className="mt-auto text-xs font-label uppercase tracking-widest text-on-surface-variant">
-                      {lastAiTipMonth} · {formatDate(lastAiTip.generatedAt)}
-                    </p>
-                  )}
+                  <div className="mt-auto">
+                    <button
+                      onClick={() => onNavigate("ai-tips")}
+                      className="w-full py-4 bg-gradient-to-r from-primary-container to-primary text-on-primary font-bold rounded-xl transition-transform active:scale-95 shadow-lg shadow-primary/20"
+                    >
+                      Tipps generieren
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
