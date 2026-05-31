@@ -121,7 +121,7 @@ export default function Abonements({ onAddAbo, onEditAbo, onDeleteAbo, refetchRe
 
     trpcClient.abonnements.list
       .query(input)
-      .then((data) => setAbonnements(data as Abonement[]))
+      .then((data: Abonement[]) => setAbonnements(data))
       .catch((err: unknown) => setError(err instanceof Error ? err.message : "Fehler beim Laden der Abonnements"))
       .finally(() => setLoading(false));
   }, [selectedKategorie, nurAktive]);

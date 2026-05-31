@@ -170,7 +170,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
 
     trpcClient.dashboard.uebersicht
       .query({ monat, jahr })
-      .then((data) => setDashboardData(data as DashboardData))
+      .then((data: DashboardData) => setDashboardData(data))
       .catch((err: unknown) =>
         setErrorUebersicht(err instanceof Error ? err.message : "Fehler beim Laden des Dashboards"),
       )
@@ -181,7 +181,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
 
     trpcClient.abonnements.list
       .query({})
-      .then((data) => setAbos(data as AboSummary[]))
+      .then((data: AboSummary[]) => setAbos(data))
       .catch((err: unknown) => setErrorAbos(err instanceof Error ? err.message : "Fehler beim Laden der Abonnements"))
       .finally(() => setLoadingAbos(false));
   }, [monat, jahr]);
@@ -227,7 +227,6 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         .filter((abo) => abo.aktiv)
         .sort((a, b) => new Date(a.naechsteFaelligkeit ?? 0).getTime() - new Date(b.naechsteFaelligkeit ?? 0).getTime())
         .slice(0, 5);
-  const lastAiTipMonth = lastAiTip ? formatMonthLabel(lastAiTip.monat, lastAiTip.jahr) : null;
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (

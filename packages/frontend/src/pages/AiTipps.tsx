@@ -170,12 +170,12 @@ export default function AITipps() {
       setLastGenerated(generatedAt);
 
       // filter zeros, check empty before reduce
-      const nonZero = kategorienResult.filter((k) => k.betrag > 0);
+      const nonZero = kategorienResult.filter((k: { kategorie: string; betrag: number }) => k.betrag > 0);
       let nextHighestCategory = "—";
       if (nonZero.length === 0) {
         setHighestCategory("—");
       } else {
-        const highest = nonZero.reduce((prev, curr) => (curr.betrag > prev.betrag ? curr : prev));
+        const highest = nonZero.reduce((prev: { kategorie: string; betrag: number }, curr: { kategorie: string; betrag: number }) => (curr.betrag > prev.betrag ? curr : prev));
         nextHighestCategory = highest.kategorie;
         setHighestCategory(nextHighestCategory);
       }

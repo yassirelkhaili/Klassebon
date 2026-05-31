@@ -417,10 +417,7 @@ export function Register({ onNavigate }: AuthProps) {
   const [errors, setErrors] = useState<RegisterErrors>({});
   const [serverError, setServerError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
   const currentErrors = useMemo(() => validateRegister(form), [form]);
   const isFormValid = Object.keys(currentErrors).length === 0;
 
