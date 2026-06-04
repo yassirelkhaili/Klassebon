@@ -125,9 +125,10 @@ function readStoredAiTip(): StoredAiTip | null {
 
 interface DashboardProps {
   onNavigate: (view: View) => void;
+  onLogout?: () => void;
 }
 
-export default function Dashboard({ onNavigate }: DashboardProps) {
+export default function Dashboard({ onNavigate, onLogout }: DashboardProps) {
   const now = new Date();
   const [monat, setMonat] = useState(now.getMonth() + 1);
   const [jahr, setJahr] = useState(now.getFullYear());

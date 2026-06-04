@@ -7,7 +7,7 @@
  */
 
 import { useState, useEffect, useRef } from "react";
-import { User, ShoppingBag, Sparkles, ChevronLeft, ChevronRight, AlertCircle, RefreshCw } from "lucide-react";
+import { User, ShoppingBag, Sparkles, ChevronLeft, ChevronRight, AlertCircle, RefreshCw, LogOut } from "lucide-react";
 import { trpcClient } from "../lib/trpc";
 import { View } from "../types.ts";
 
@@ -203,34 +203,6 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
     };
   }, []);
 
-  // ── Fetch user data ──────────────────────────────────────────────────────
-  useEffect(() => {
-    trpcClient.me
-      .query({})
-      .then((result: { user: { name: string; email: string; createdAt: string } | null }) => {
-        if (result.user) {
-          setUserData(result.user);
-        }
-      })
-      .catch((err: unknown) => {
-        console.error("Error fetching user data:", err);
-      });
-  }, []);
-
-  // ── Handle click outside user profile dropdown ────────────────────────────
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (userProfileRef.current && !userProfileRef.current.contains(event.target as Node)) {
-        setShowUserProfile(false);
-      }
-    };
-
-    if (showUserProfile) {
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => document.removeEventListener("mousedown", handleClickOutside);
-    }
-  }, [showUserProfile]);
-
   // Derived: spinner while either call is pending
   const isLoading = loadingUebersicht || loadingAbos;
 
@@ -297,35 +269,9 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
             <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
             Local-Only Encryption
           </div>
-
-          {/* User profile dropdown */}
-          <div className="relative" ref={userProfileRef}>
-            <button
-              onClick={() => setShowUserProfile(!showUserProfile)}
-              className="text-on-surface-variant hover:text-primary transition-colors"
-              aria-label="Benutzerprofil"
-            >
-              <User className="w-5 h-5" />
-            </button>
-
-            {/* Dropdown menu */}
-            {showUserProfile && userData && (
-              <div className="absolute right-0 mt-2 w-64 bg-surface-container-low border border-outline-variant/20 rounded-xl shadow-lg z-50">
-                {/* User info section */}
-                <div className="px-6 py-4 border-b border-outline-variant/10">
-                  <p className="text-sm font-bold text-on-surface truncate">{userData.name}</p>
-                  <p className="text-xs text-on-surface-variant truncate mt-1">{userData.email}</p>
-                  <p className="text-xs text-on-surface-variant/60 mt-2">
-                    Seit {new Date(userData.createdAt).toLocaleDateString("de-DE", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                    })}
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
+          <button className="text-on-surface-variant hover:text-primary transition-colors">
+            <Bell className="w-5 h-5" />
+          </button>
         </div>
       </header>
 

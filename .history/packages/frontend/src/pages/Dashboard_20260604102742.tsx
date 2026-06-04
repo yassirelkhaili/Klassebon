@@ -7,7 +7,7 @@
  */
 
 import { useState, useEffect, useRef } from "react";
-import { User, ShoppingBag, Sparkles, ChevronLeft, ChevronRight, AlertCircle, RefreshCw } from "lucide-react";
+import { User, ShoppingBag, Sparkles, ChevronLeft, ChevronRight, AlertCircle, RefreshCw, LogOut } from "lucide-react";
 import { trpcClient } from "../lib/trpc";
 import { View } from "../types.ts";
 
@@ -125,9 +125,10 @@ function readStoredAiTip(): StoredAiTip | null {
 
 interface DashboardProps {
   onNavigate: (view: View) => void;
+  onLogout?: () => void;
 }
 
-export default function Dashboard({ onNavigate }: DashboardProps) {
+export default function Dashboard({ onNavigate, onLogout }: DashboardProps) {
   const now = new Date();
   const [monat, setMonat] = useState(now.getMonth() + 1);
   const [jahr, setJahr] = useState(now.getFullYear());
@@ -322,6 +323,20 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
                       year: "numeric",
                     })}
                   </p>
+                </div>
+
+                {/* Logout option */}
+                <div className="px-2 py-2">
+                  <button
+                    onClick={() => {
+                      setShowUserProfile(false);
+                      // Logout will be handled at App level
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-on-surface-variant hover:bg-error/10 hover:text-error transition-colors rounded-lg text-sm font-medium group"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Abmelden</span>
+                  </button>
                 </div>
               </div>
             )}
